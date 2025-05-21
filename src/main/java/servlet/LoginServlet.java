@@ -1,4 +1,4 @@
-package controller;
+package servlet;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,7 +20,7 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Show the login form
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth-pages/login.jsp").forward(request, response);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
         } else {
             // Login failed
             request.setAttribute("error", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.getRequestDispatcher("/auth-pages/login.jsp").forward(request, response);
         }
     }
 }

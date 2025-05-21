@@ -1,4 +1,4 @@
-package controller;
+package servlet;
 
 
 import jakarta.servlet.ServletException;
@@ -20,7 +20,7 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/register.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth-pages/register.jsp").forward(request, response);
     }
 
     @Override
@@ -38,6 +38,6 @@ public class RegisterServlet extends HttpServlet {
             request.setAttribute("error", "Registration failed. Username may already exist.");
         }
 
-        request.getRequestDispatcher("/register.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth-pages/register.jsp").forward(request, response);
     }
 }
