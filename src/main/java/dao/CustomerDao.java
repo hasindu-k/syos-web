@@ -99,4 +99,19 @@ public class CustomerDao {
         }
         return null;
     }
+    
+    public boolean emailExists(String email) {
+        String query = "SELECT 1 FROM customers WHERE email = ?";
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.out.println("Check Email Error: " + e.getMessage());
+            return false;
+        }
+    }
 }

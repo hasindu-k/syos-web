@@ -44,4 +44,25 @@ public class CustomerService {
     public Customer getCustomerById(Integer id) {
         return customerDao.getCustomerById(id);
     }
+    
+    public void registerCustomer(String name, String email, String phone) {
+        Customer customer = new Customer(name, email, phone);
+        
+        if (!isValidEmail(customer.getEmail())) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+        if (emailExists(customer.getEmail())) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+        customerDao.addCustomer(customer);
+    }
+
+    private boolean isValidEmail(String email) {
+        return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.\\w{2,}$");
+    }
+
+    private boolean emailExists(String email) {
+        return customerDao.emailExists(email);
+    }
 }

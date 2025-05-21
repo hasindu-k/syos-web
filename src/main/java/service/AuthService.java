@@ -26,7 +26,7 @@ public class AuthService {
     
     public boolean registerUser(String username, String password, String role) {
         try {
-            userDao.addPerson(username, password, role, "user");
+            userDao.addPerson(username, password, role, "staff");
             return true;
         } catch (Exception e) {
             // Log exception (optional)
