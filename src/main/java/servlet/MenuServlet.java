@@ -23,15 +23,19 @@ public class MenuServlet extends HttpServlet {
 
         // Forward to the appropriate menu JSP
         switch (role.toLowerCase()) {
-            case "admin":
-                request.getRequestDispatcher("/admin-menu.jsp").forward(request, response);
-                break;
-            case "cashier":
-                request.getRequestDispatcher("/cashier-menu.jsp").forward(request, response);
-                break;
-            default:
-                request.setAttribute("error", "Unknown user role: " + role);
-                request.getRequestDispatcher("/error.jsp").forward(request, response);
-        }
+        case "admin":
+            request.getRequestDispatcher("/admin-menu.jsp").forward(request, response);
+            break;
+        case "cashier":
+            request.getRequestDispatcher("/cashier-menu.jsp").forward(request, response);
+            break;
+        case "customer":
+            request.getRequestDispatcher("/customer-menu.jsp").forward(request, response);
+            break;
+        default:
+            request.setAttribute("error", "Unknown user role: " + role);
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+    }
+
     }
 }
