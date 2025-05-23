@@ -28,10 +28,10 @@ public class LoginFilter implements Filter {
 
         boolean isPublic = isLogin || isRegister || isLogout || isStatic;
 
-//        if (loggedIn || isPublic) {
+        if (loggedIn || isPublic) {
             chain.doFilter(req, res); // Allow request
-//        } else {
-//            response.sendRedirect(request.getContextPath() + "/login"); // Redirect to login
-//        }
+        } else {
+            response.sendRedirect(request.getContextPath() + "/login"); // Redirect to login
+        }
     }
 }

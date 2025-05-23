@@ -1,23 +1,23 @@
 package servlet;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import service.ProductService;
-import service.StockService;
-import service.CategoryService;
+import model.Category;
 import model.Product;
 import model.ProductView;
-import model.Category;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import service.CategoryService;
+import service.ProductService;
+import service.StockService;
 
 @WebServlet("/admin/*")
 public class AdminServlet extends HttpServlet {
@@ -37,11 +37,11 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-//        if (session == null || session.getAttribute("role") == null ||
-//                !session.getAttribute("role").equals("Admin")) {
-//            response.sendRedirect(request.getContextPath() + "/login.jsp");
-//            return;
-//        }
+        if (session == null || session.getAttribute("role") == null ||
+                !session.getAttribute("role").equals("Admin")) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            return;
+        }
 
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
