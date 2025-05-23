@@ -21,8 +21,54 @@
 <%
     } else {
 %>
-<!-- table rendering code here (same as before) -->
-<!-- checkout + back buttons -->
+<div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                    int index = 1;
+                    for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
+                        int productId = entry.getKey();
+                        int quantity = entry.getValue();
+                        Product product = productService.getProductById(productId);
+                        double price = product.getPrice(); // you must ensure Product has getPrice()
+                        double lineTotal = price * quantity;
+                        total += lineTotal;
+                %>
+                <tr>
+                    <td><%= index++ %></td>
+                    <td><%= product.getName() %></td>
+                    <td><%= quantity %></td>
+                    <td><%= price %></td>
+                    <td><%= lineTotal %></td>
+                </tr>
+                <% } %>
+                </tbody>
+                <tfoot class="table-light">
+                <tr>
+                    <th colspan="4" class="text-end">Total</th>
+                    <th><%= total %></th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-outline-secondary" onclick="history.back()">Back</button>
+
+    <form action="checkout" method="post" class="mb-0">
+        <button class="btn btn-success btn-lg">Proceed to Checkout</button>
+    </form>
+</div>
 <%
     }
 %>

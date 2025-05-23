@@ -65,7 +65,7 @@
     <p>Here are your available options:</p>
 
     <ul>
-        <li><a href="view-products">Browse Products</a></li>
+        <li><a href="products">Browse Products</a></li>
         <li><a href="my-orders">My Orders</a></li>
         <li><a href="account">Account Settings</a></li>
         <li><a href="logout">Logout</a></li>
