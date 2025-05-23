@@ -13,14 +13,13 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="/home/hasindu/Haritha/Syos-web/src/main/webapp/WEB-INF/lib/mysql-connector-j-8.4.0.jar"/>
-	<classpathentry kind="lib" path="/home/hasindu/Haritha/Syos-web/src/main/webapp/WEB-INF/lib/mockito-core-5.15.2.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/junit_4/junit-4.13.2.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/junit_4/junit-4.13.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/junit_4/junit-4.13.2-sources.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/mockito-core-5.15.2.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/mysql-connector-j-8.4.0.jar"/>
-	<classpathentry kind="lib" path="/home/hasindu/Haritha/Syos-web/src/main/webapp/WEB-INF/lib/jakarta.servlet-api_6.0.0.jar"/>
-	<classpathentry kind="lib" path="/home/hasindu/Haritha/Syos-web/src/main/webapp/WEB-INF/lib/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jakarta.servlet.jsp.jstl-3.0.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jakarta.servlet.jsp.jstl-api-3.0.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jakarta.servlet-api_6.0.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

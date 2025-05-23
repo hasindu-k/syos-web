@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
-    <title>Manage Categories - Admin</title>
+    <title>Manage Products - Admin</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,7 +12,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: #ffffff;
             padding: 20px;
@@ -103,7 +103,7 @@
             padding: 20px;
             border-radius: 8px;
             width: 80%;
-            max-width: 500px;
+            max-width: 600px;
         }
 
         .form-group {
@@ -116,16 +116,11 @@
             font-weight: 500;
         }
 
-        .form-group input, .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
         }
 
         .modal-buttons {
@@ -147,11 +142,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Manage Categories</h1>
+        <h1>Manage Products</h1>
         
         <div class="action-bar">
             <a href="${pageContext.request.contextPath}/admin" class="btn btn-primary">Back to Admin Menu</a>
-            <button class="btn btn-primary" onclick="showAddCategoryModal()">Add New Category</button>
+            <button class="btn btn-primary" onclick="showAddProductModal()">Add New Product</button>
         </div>
 
         <table>
@@ -159,44 +154,87 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Description</th>
-                    <th>Products Count</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <c:forEach items="${categories}" var="category">
-                    <tr>
-                        <td>${category.id}</td>
-                        <td>${category.name}</td>
-                        <td>${category.description}</td>
-                        <td>${category.productCount}</td>
-                        <td class="actions">
-                            <button class="btn btn-edit" onclick="editCategory(${category.id})">Edit</button>
-                            <button class="btn btn-delete" onclick="deleteCategory(${category.id})">Delete</button>
-                        </td>
-                    </tr>
-                </c:forEach>
+				<c:forEach items="${products}" var="vm">
+				    <tr>
+				        <td>${vm.product.id}</td>
+				        <td>${vm.product.name}</td>
+				        <td>${vm.categoryName}</td>
+				        <td>$${vm.product.price}</td>
+				        <td>${vm.stockQuantity}</td>
+				        <td class="actions">
+				            <button class="btn btn-edit" onclick="editProduct(${vm.product.id})">Edit</button>
+				            <button class="btn btn-delete" onclick="deleteProduct(${vm.product.id})">Delete</button>
+				        </td>
+				    </tr>
+				</c:forEach>
             </tbody>
         </table>
     </div>
 
-    <!-- Add/Edit Category Modal -->
-    <div id="categoryModal" class="modal">
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
         <div class="modal-content">
-            <h2 id="modalTitle">Add New Category</h2>
-            <form id="categoryForm" onsubmit="handleCategorySubmit(event)">
-                <input type="hidden" id="categoryId" name="id">
+            <h2 id="modalTitle">Add New Product</h2>
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <input type="hidden" id="productId" name="id">
                 <div class="form-group">
-                    <label for="name">Category Name</label>
+                    <label for="name">Product Name</label>
                     <input type="text" id="name" name="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" required></textarea>
+                    <label for="unitId">Unit</label>
+                    <select id="unitId" name="unitId" required>
+                        <option value="1">Each</option>
+                        <option value="2">Kilogram</option>
+                        <option value="3">Liter</option>
+                    </select>
+                </div>
+			    <div class="form-group">
+			        <label for="categoryId">Category</label>
+			        <select id="categoryId" name="categoryId" required>
+			            <c:forEach items="${categories}" var="category">
+			                <option value="${category.id}">${category.name}</option>
+			            </c:forEach>
+			        </select>
+			    </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="warehouseId">Warehouse</label>
+                    <select id="warehouseId" name="warehouseId" required>
+                        <option value="1">Main Warehouse</option>
+                        <option value="2">Secondary Warehouse</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="note">Note</label>
+                    <input type="text" id="note" name="note">
+                </div>
+                <div class="form-group">
+                    <label for="stockAlert">Stock Alert Level</label>
+                    <input type="number" id="stockAlert" name="stockAlert" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="supplierId">Supplier</label>
+                    <select id="supplierId" name="supplierId" required>
+                        <option value="1">Supplier 1</option>
+                        <option value="2">Supplier 2</option>
+                    </select>
                 </div>
                 <div class="modal-buttons">
-                    <button type="button" class="btn btn-cancel" onclick="closeCategoryModal()">Cancel</button>
+                    <button type="button" class="btn btn-cancel" onclick="closeProductModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -204,34 +242,34 @@
     </div>
 
     <script>
-        const modal = document.getElementById('categoryModal');
-        const form = document.getElementById('categoryForm');
+        const modal = document.getElementById('productModal');
+        const form = document.getElementById('productForm');
         const modalTitle = document.getElementById('modalTitle');
 
-        function showAddCategoryModal() {
-            modalTitle.textContent = 'Add New Category';
+        function showAddProductModal() {
+            modalTitle.textContent = 'Add New Product';
             form.reset();
-            document.getElementById('categoryId').value = '';
+            document.getElementById('productId').value = '';
             modal.style.display = 'block';
         }
 
-        function editCategory(id) {
-            modalTitle.textContent = 'Edit Category';
-            // TODO: Fetch category details and populate form
+        function editProduct(id) {
+            modalTitle.textContent = 'Edit Product';
+            // TODO: Fetch product details and populate form
             modal.style.display = 'block';
         }
 
-        function closeCategoryModal() {
+        function closeProductModal() {
             modal.style.display = 'none';
         }
 
-        function handleCategorySubmit(event) {
+        function handleProductSubmit(event) {
             event.preventDefault();
             const formData = new FormData(form);
-            const categoryId = formData.get('id');
-            const url = categoryId ? 
-                '${pageContext.request.contextPath}/admin/categories/update' : 
-                '${pageContext.request.contextPath}/admin/categories/add';
+            const productId = formData.get('id');
+            const url = productId ? 
+                '${pageContext.request.contextPath}/admin/products/update' : 
+                '${pageContext.request.contextPath}/admin/products/add';
 
             fetch(url, {
                 method: 'POST',
@@ -251,9 +289,9 @@
             });
         }
 
-        function deleteCategory(id) {
-            if (confirm('Are you sure you want to delete this category?')) {
-                fetch('${pageContext.request.contextPath}/admin/categories/delete', {
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                fetch('${pageContext.request.contextPath}/admin/products/delete', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -265,7 +303,7 @@
                     if (data.success) {
                         window.location.reload();
                     } else {
-                        alert('Failed to delete category. Please try again.');
+                        alert('Failed to delete product. Please try again.');
                     }
                 })
                 .catch(error => {
@@ -278,9 +316,8 @@
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target == modal) {
-                closeCategoryModal();
+                closeProductModal();
             }
         }
     </script>
 </body>
-</html> 

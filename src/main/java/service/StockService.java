@@ -114,4 +114,9 @@ public class StockService implements Subject {
         return lowStocks;
     }
     // Additional stock operations can be added here
+
+	public int getStockQuantityByProductId(int id) {
+		List<Stock> stocks = stockDao.getStocksByProductId(id);
+	    return stocks.stream().mapToInt(Stock::getQuantity).sum();
+	}
 }

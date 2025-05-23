@@ -8,20 +8,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import service.ProductService;
+import service.StockService;
 import service.CategoryService;
 import model.Product;
+import model.ProductView;
 import model.Category;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet("/admin/*")
 public class AdminServlet extends HttpServlet {
     private ProductService productService;
     private CategoryService categoryService;
+    private StockService stockService; 
 
     @Override
     public void init() throws ServletException {
         productService = new ProductService();
         categoryService = new CategoryService();
+        stockService = new StockService();
     }
 
     @Override
@@ -29,11 +37,11 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("role") == null ||
-                !session.getAttribute("role").equals("Admin")) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
-            return;
-        }
+//        if (session == null || session.getAttribute("role") == null ||
+//                !session.getAttribute("role").equals("Admin")) {
+//            response.sendRedirect(request.getContextPath() + "/login.jsp");
+//            return;
+//        }
 
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
@@ -47,6 +55,9 @@ public class AdminServlet extends HttpServlet {
                 break;
             case "/categories":
                 handleCategories(request, response);
+                break;
+            case "/categories/get":
+                handleGetCategory(request, response);
                 break;
             case "/users":
                 handleUsers(request, response);
@@ -99,27 +110,71 @@ public class AdminServlet extends HttpServlet {
     private void handleProducts(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Product> products = productService.getAllProducts();
-        request.setAttribute("products", products);
-        request.getRequestDispatcher("/admin/products.jsp").forward(request, response);
+        List<Category> categories = categoryService.getAllCategories();
+        Map<Integer, String> categoryMap = categories.stream()
+            .collect(Collectors.toMap(Category::getId, Category::getName));
+        
+        List<ProductView> viewModels = new ArrayList<>();
+        for (Product product : products) {
+            String categoryName = categoryMap.get(product.getCategoryId());
+            int stockQuantity = stockService.getStockQuantityByProductId(product.getId()); // You need to implement this
+            viewModels.add(new ProductView(product, categoryName, stockQuantity));
+        }
+
+        request.setAttribute("products", viewModels);
+        request.getRequestDispatcher("/admin-products.jsp").forward(request, response);
     }
 
     private void handleCategories(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Category> categories = categoryService.getAllCategories();
         request.setAttribute("categories", categories);
-        request.getRequestDispatcher("/admin/categories.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin-categories.jsp").forward(request, response);
+    }
+    
+    private void handleGetCategory(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        String idParam = request.getParameter("id");
+
+        if (idParam == null || idParam.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing category ID");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idParam);
+            Category category = categoryService.getCategoryById(id);
+
+            response.setContentType("application/json");
+            if (category != null) {
+                String json = String.format("{\"id\": %d, \"name\": \"%s\", \"description\": \"%s\"}",
+                        category.getId(),
+                        escapeJson(category.getName()),
+                        escapeJson(category.getDescription()));
+                response.getWriter().write(json);
+            } else {
+                response.getWriter().write("{\"success\": false, \"message\": \"Category not found\"}");
+            }
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid category ID format");
+        }
+    }
+
+    // Helper to safely escape JSON strings
+    private String escapeJson(String str) {
+        return str == null ? "" : str.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
     }
 
     private void handleUsers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO: Implement user management logic
-        request.getRequestDispatcher("/admin/users.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin-users.jsp").forward(request, response);
     }
 
     private void handleReports(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO: Implement reports generation logic
-        request.getRequestDispatcher("/admin/reports.jsp").forward(request, response);
+        request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
     }
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
@@ -181,6 +236,8 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
         String name = request.getParameter("name");
         String description = request.getParameter("description");
+        
+        
 
         int categoryId = categoryService.addCategory(name, description);
 
