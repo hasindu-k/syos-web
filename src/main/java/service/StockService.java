@@ -35,9 +35,8 @@ public class StockService implements Subject {
      * @param expiryDate Expiry date.
      * @return Stock ID if successful, else -1.
      */
-    public int addStock(int productId, int quantity, double costPrice,
-                        double sellingPrice, double tax, int warehouseId, Date expiryDate) {
-        Stock stock = new Stock(productId, quantity, costPrice, sellingPrice, warehouseId, expiryDate);
+    public int addStock(int productId, int quantity, int warehouseId, Date expiryDate) {
+        Stock stock = new Stock(productId, quantity, warehouseId, expiryDate);
         int stockId = stockDao.addStock(stock);
         if (stockId > 0) {
             notifyObservers("New stock added for Product ID " + productId);
@@ -107,7 +106,7 @@ public class StockService implements Subject {
         
         for (Stock stock : allStocks) {
             // Consider stock as low if quantity is less than or equal to 10
-            if (stock.getQuantity() <= 50) {
+            if (stock.getQuantity() < 50) {
                 lowStocks.add(stock);
             }
         }

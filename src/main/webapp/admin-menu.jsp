@@ -1,69 +1,31 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
-<html>
-<head>
-    <title>Admin Menu</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
+<%
+    request.setAttribute("pageTitle", "Admin Dashboard");
+%>
+<jsp:include page="/header.jsp"></jsp:include>
 
-        .container {
-            background-color: #ffffff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 100%;
-            margin: 50px auto;
-        }
-
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 15px;
-        }
-
-        a {
-            display: block;
-            padding: 12px 18px;
-            background-color: #2c3e50;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-        }
-
-        a:hover {
-            background-color: #1a242f;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h2>Welcome, Admin!</h2>
-    <ul>
-        <li><a href="${pageContext.request.contextPath}/admin/products">Manage Products</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/categories">Manage Categories</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/users">Manage Users</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/reports">View Reports</a></li>
-        <li><a href="${pageContext.request.contextPath}/admin/logout">Logout</a></li>
-    </ul>
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Welcome, Admin!</h2>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="${pageContext.request.contextPath}/admin/products" class="text-decoration-none">Manage Products</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="${pageContext.request.contextPath}/admin/categories" class="text-decoration-none">Manage Categories</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="${pageContext.request.contextPath}/admin/users" class="text-decoration-none">Manage Users</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="${pageContext.request.contextPath}/admin/reports" class="text-decoration-none">View Reports</a>
+                </li>
+                <li class="list-group-item">
+                    <a href="${pageContext.request.contextPath}/admin/logout" class="text-danger text-decoration-none">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 
-</body>
-</html>
+<jsp:include page="/footer.jsp"></jsp:include>

@@ -19,19 +19,16 @@ public class StockDao {
      * @return Generated Stock ID or -1 if failed.
      */
     public int addStock(Stock stock) {
-        String query = "INSERT INTO stocks (products_id, quantity, cost,price, warehouse_id, expiry_date, created_at,updated_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    	String query = "INSERT INTO stocks (products_id, quantity, warehouse_id, expiry_date, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setInt(1, stock.getProductId());
-            stmt.setInt(2, stock.getQuantity());
-            stmt.setDouble(3, stock.getCostPrice());
-            stmt.setDouble(4, stock.getSellingPrice());
-            stmt.setInt(5, stock.getWarehouseId());
-            stmt.setDate(6, new java.sql.Date(stock.getExpiryDate().getTime()));
-            stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
-            stmt.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+        	stmt.setInt(1, stock.getProductId());
+        	stmt.setInt(2, stock.getQuantity());
+        	stmt.setInt(3, stock.getWarehouseId());
+        	stmt.setDate(4, new java.sql.Date(stock.getExpiryDate().getTime()));
+        	stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+        	stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -65,14 +62,13 @@ public class StockDao {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Stock stock = new Stock(
-                        rs.getInt("products_id"),
-                        rs.getInt("quantity"),
-                        rs.getDouble("cost"),
-                        rs.getDouble("price"),
-                        rs.getInt("warehouse_id"),
-                        rs.getDate("expiry_date")
-                );
+            	Stock stock = new Stock(
+            		    rs.getInt("products_id"),
+            		    rs.getInt("quantity"),
+            		    rs.getInt("warehouse_id"),
+            		    rs.getDate("expiry_date")
+            		);
+
                 stock.setId(rs.getInt("id"));
                 stocks.add(stock);
             }
@@ -119,14 +115,13 @@ public class StockDao {
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Stock stock = new Stock(
-                            rs.getInt("products_id"),
-                            rs.getInt("quantity"),
-                            rs.getDouble("cost"),
-                            rs.getDouble("price"),
-                            rs.getInt("warehouse_id"),
-                            rs.getDate("expiry_date")
-                    );
+                	Stock stock = new Stock(
+                		    rs.getInt("products_id"),
+                		    rs.getInt("quantity"),
+                		    rs.getInt("warehouse_id"),
+                		    rs.getDate("expiry_date")
+                		);
+
                     stock.setId(rs.getInt("id"));
                     stocks.add(stock);
                 }

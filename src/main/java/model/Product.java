@@ -19,19 +19,20 @@ public class Product {
     private String description;
 
     public Product(String name, int unitId, int categoryId, String status,
-                   int warehouseId, String note, int stockAlert, int supplierId) {
-        this.name = name;
-        this.code = "";  
-        this.unitId = unitId;
-        this.categoryId = categoryId;
-        this.status = status;
-        this.warehouseId = warehouseId;
-        this.note = note;
-        this.stockAlert = stockAlert;
-        this.supplierId = supplierId;
-        this.price = 0.0;
-        this.description = "";
-    }
+            int warehouseId, String note, int stockAlert, int supplierId,
+            double price) {
+	 this.name = name;
+	 this.code = "";  
+	 this.unitId = unitId;
+	 this.categoryId = categoryId;
+	 this.status = status;
+	 this.warehouseId = warehouseId;
+	 this.note = note;
+	 this.stockAlert = stockAlert;
+	 this.supplierId = supplierId;
+	 this.price = price;
+	 this.description = "";
+	}
 
     // Getters and Setters
 

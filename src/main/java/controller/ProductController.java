@@ -90,9 +90,12 @@ public class ProductController extends BaseController {
 
         System.out.print("Supplier ID: ");
         int supplierId = parseIntInput();
+        
+        System.out.print("Price: ");
+        int price = parseIntInput();
 
         int productId = productService.addProduct(name, unitId, categoryId, status,
-                warehouseId, note, stockAlert, supplierId);
+                warehouseId, note, stockAlert, supplierId, price);
         if (productId > 0) {
             System.out.println("Product added successfully with ID: " + productId);
         } else {
@@ -141,9 +144,12 @@ public class ProductController extends BaseController {
 
         System.out.print("New Supplier ID: ");
         int supplierId = parseIntInput();
+        
+        System.out.print("Price: ");
+        int price = parseIntInput();
 
         boolean updated = productService.updateProduct(id, name, unitId, categoryId,
-                status, warehouseId, note, stockAlert, supplierId);
+                status, warehouseId, note, stockAlert, supplierId, price);
         if (updated) {
             System.out.println("Product updated successfully.");
         } else {

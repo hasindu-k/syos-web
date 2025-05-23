@@ -1,6 +1,10 @@
 // src/dao/UserDaoProxy.java
 package dao;
 
+import java.util.List;
+
+import model.User;
+
 /**
  * Proxy Pattern.
  * Adds additional functionalities like logging without modifying the original UserDao.
@@ -36,4 +40,16 @@ public class UserDaoProxy implements UserDaoInterface {
         System.out.println("Listing people by type: " + type);
         userDao.listPeopleByTypeDirect(type);
     }
+
+	@Override
+	public List<User> getAllUsers() {
+	    System.out.println("Proxy: Fetching all users...");
+	    return userDao.getAllUsersDirect();
+	}
+
+	@Override
+	public boolean updateUserRole(int userId, String newRole) {
+		System.out.println("Updating User role...");
+		return userDao.updateUserRole( userId,  newRole);
+	}
 }

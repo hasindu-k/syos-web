@@ -1,8 +1,11 @@
 // src/service/AuthService.java
 package service;
 
+import java.util.List;
+
 import dao.UserDao;
 import dao.UserDaoInterface;
+import model.User;
 
 /**
  * Service class for Authentication.
@@ -32,5 +35,13 @@ public class AuthService {
             // Log exception (optional)
             return false;
         }
+    }
+    
+    public List<User> getAllUsers() {
+        return new UserDao().getAllUsers();
+    }
+    
+    public boolean updateUserRole(int userId, String newRole) {
+        return userDao.updateUserRole(userId, newRole);
     }
 }

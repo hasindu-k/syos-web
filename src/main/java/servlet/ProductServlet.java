@@ -32,6 +32,7 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         // Get product list from service
         List<Product> products = productService.getAllProducts();
         List<Category> categories = categoryService.getAllCategories();
@@ -46,8 +47,6 @@ public class ProductServlet extends HttpServlet {
         }
 
         request.setAttribute("products", viewModels);
-        // Set products as request attribute
-//        request.setAttribute("products", products);
 
         // Forward to JSP view
         request.getRequestDispatcher("/products.jsp").forward(request, response);

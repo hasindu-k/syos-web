@@ -83,76 +83,54 @@ public class ShelfDao {
     }
 
     public int reshelf() {
-        System.out.println("reshelf initiated");
+        System.out.println("Reshelving initiated");
         try {
+            ResultSet shelves = connection.createStatement().executeQuery(
+                "SELECT shelves.id AS shelf_id, shelves.quantity AS shelf_qty, products.id AS product_id " +
+                "FROM shelves " +
+                "INNER JOIN stocks ON stocks.id = shelves.stocks_id " +
+                "INNER JOIN products ON products.id = stocks.products_id " +
+                "WHERE shelves.quantity < 50"
+            );
 
-            ResultSet itemSet2 = connection.createStatement().executeQuery("SELECT * "
-                    + "FROM shelves INNER JOIN stocks ON stocks.id = shelves.stocks_id"
-                    + " INNER JOIN products ON products.id = stocks.products_id WHERE shelves.quantity < 50");
-            while (itemSet2.next()) {
-                String stock_id = itemSet2.getString("shelves.stocks_id");
-                int remainingQty = itemSet2.getInt("shelves.quantity");
-                int inStockQty = itemSet2.getInt("stocks.quantity");
-                int neededQty = 50 - remainingQty;
-                int stockAlert = itemSet2.getInt("stock_alert");
-                int sumQty = remainingQty + inStockQty;
-                if (remainingQty < neededQty) {
-                    if (sumQty < stockAlert) {
-//                            ResultSet shelfItem = DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT * FROM "
-//                                    + "shelves WHERE stocks_id = '" + stock_id + "'");
-                        connection.createStatement().executeUpdate("UPDATE stocks SET quantity = '" + remainingQty + "' WHERE stocks.id = '" + stock_id + "'");
-                        ResultSet newStockSet = connection.createStatement().executeQuery("""
-                                                                           SELECT * 
-                                                                           FROM stocks
-                                                                           INNER JOIN products ON products.id = stocks.products_id 
-                                                                           WHERE products.id = '1' 
-                                                                           AND stocks.quantity > '""" + stockAlert + "' \n"
-                                + "ORDER BY stocks.expiry_date ASC \n"
-                                + "LIMIT 1;");
-                        if (newStockSet.next()) {
-                            String newStockId = newStockSet.getString("stocks.id");
-                            int newQty = newStockSet.getInt("quantity");
-                            if (newQty > 50) {
-                                newQty = 50;
-                            }
-                            connection.createStatement().executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "',"
-                                    + " `stocks_id` = '" + newStockId + "' WHERE stocks_id = '" + stock_id + "'  ");
+            while (shelves.next()) {
+                int shelfId = shelves.getInt("shelf_id");
+                int shelfQty = shelves.getInt("shelf_qty");
+                int productId = shelves.getInt("product_id");
+                int needed = 50 - shelfQty;
+                int totalAdded = 0;
+                String lastUsedStockId = null;
 
-                            connection.createStatement().executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" + newQty + "',"
-                                    + " WHERE id = '" + newStockId + "'  ");
-                            System.out.println("Reshelving Completed");
+                ResultSet stocks = connection.createStatement().executeQuery(
+                    "SELECT id, quantity FROM stocks " +
+                    "WHERE products_id = " + productId + " AND quantity > 0 " +
+                    "ORDER BY expiry_date ASC"
+                );
 
-                        }
-                    } else if (sumQty < neededQty) {
-                        ResultSet newStockSet = connection.createStatement().executeQuery("SELECT * FROM `stocks` WHERE `id` = '" + stock_id + "'");
-                        connection.createStatement().executeUpdate("UPDATE stocks SET quantity = '" + 0 + "' WHERE stocks.id = '" + stock_id + "'");
-                        if (newStockSet.next()) {
-                            String newQty = newStockSet.getString("quantity");
-                            connection.createStatement().executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "'"
-                                    + " WHERE stocks_id = '" + stock_id + "'  ");
+                while (stocks.next() && needed > 0) {
+                    String stockId = stocks.getString("id");
+                    int availableQty = stocks.getInt("quantity");
+                    int toTake = Math.min(needed, availableQty);
 
-                            connection.createStatement().executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" + newQty + "',"
-                                    + " WHERE id = '" + stock_id + "'  ");
-                            System.out.println("Reshelving Completed");
+                    connection.createStatement().executeUpdate(
+                        "UPDATE stocks SET quantity = quantity - " + toTake + " WHERE id = '" + stockId + "'");
 
-                        }
-                    }
-
-                } else if (remainingQty < 50) {
-                    connection.createStatement().executeUpdate("UPDATE stocks SET quantity = quantity - '" + neededQty + "' WHERE stocks.id = '" + stock_id + "'");
-                    connection.createStatement().executeUpdate("UPDATE shelves SET `quantity` = quantity + '" + neededQty + "'"
-                            + " WHERE stocks_id = '" + stock_id + "'  ");
-
-//                        connection.createStatement().executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" + newQty + "',"
-//                                + " WHERE id = '" + stock_id + "'  ");
-                    System.out.println("Reshelving Completed");
-
+                    needed -= toTake;
+                    totalAdded += toTake;
+                    lastUsedStockId = stockId;
                 }
 
+                if (totalAdded > 0 && lastUsedStockId != null) {
+                    connection.createStatement().executeUpdate(
+                        "UPDATE shelves SET quantity = quantity + " + totalAdded + ", stocks_id = '" + lastUsedStockId + "' WHERE id = " + shelfId);
+                    System.out.println("Shelf " + shelfId + " refilled to 50 using stocks up to ID: " + lastUsedStockId);
+                }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
+        System.out.println("Reshelving completed");
         return 0;
     }
+
 }

@@ -23,7 +23,7 @@ import service.StockService;
 public class AdminServlet extends HttpServlet {
     private ProductService productService;
     private CategoryService categoryService;
-    private StockService stockService; 
+    private StockService stockService;
 
     @Override
     public void init() throws ServletException {
@@ -37,11 +37,17 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-//        if (session == null || session.getAttribute("role") == null ||
-//                !session.getAttribute("role").equals("Admin")) {
-//            response.sendRedirect(request.getContextPath() + "/login.jsp");
-//            return;
-//        }
+        // if (session == null || session.getAttribute("role") == null ||
+        // !session.getAttribute("role").equals("Admin")) {
+        // response.sendRedirect(request.getContextPath() + "/login.jsp");
+        // return;
+        // }
+        
+        String role = null;
+        if (session != null) {
+            role = (String) session.getAttribute("role");
+        }
+        request.setAttribute("role", role);
 
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
@@ -58,6 +64,9 @@ public class AdminServlet extends HttpServlet {
                 break;
             case "/categories/get":
                 handleGetCategory(request, response);
+                break;
+            case "/products/get":
+                handleGetProduct(request, response);
                 break;
             case "/users":
                 handleUsers(request, response);
@@ -102,6 +111,9 @@ public class AdminServlet extends HttpServlet {
             case "/categories/delete":
                 handleDeleteCategory(request, response);
                 break;
+            case "/users/updateRole":
+                handleUpdateUserRole(request, response);
+                break;
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -112,16 +124,17 @@ public class AdminServlet extends HttpServlet {
         List<Product> products = productService.getAllProducts();
         List<Category> categories = categoryService.getAllCategories();
         Map<Integer, String> categoryMap = categories.stream()
-            .collect(Collectors.toMap(Category::getId, Category::getName));
-        
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+
         List<ProductView> viewModels = new ArrayList<>();
         for (Product product : products) {
             String categoryName = categoryMap.get(product.getCategoryId());
-            int stockQuantity = stockService.getStockQuantityByProductId(product.getId()); // You need to implement this
+            int stockQuantity = stockService.getStockQuantityByProductId(product.getId());
             viewModels.add(new ProductView(product, categoryName, stockQuantity));
         }
 
         request.setAttribute("products", viewModels);
+        request.setAttribute("categories", categories);
         request.getRequestDispatcher("/admin-products.jsp").forward(request, response);
     }
 
@@ -131,7 +144,7 @@ public class AdminServlet extends HttpServlet {
         request.setAttribute("categories", categories);
         request.getRequestDispatcher("/admin-categories.jsp").forward(request, response);
     }
-    
+
     private void handleGetCategory(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         String idParam = request.getParameter("id");
@@ -160,6 +173,46 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
+    private void handleGetProduct(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        String idParam = request.getParameter("id");
+        response.setContentType("application/json");
+
+        if (idParam == null || idParam.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"success\": false, \"message\": \"Missing product ID\"}");
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idParam);
+            Product product = productService.getProductById(id);
+
+            if (product != null) {
+                String json = String.format(
+                        "{ \"success\": true, \"id\": %d, \"name\": \"%s\", \"price\": %.2f, \"unitId\": %d, \"categoryId\": %d, "
+                                +
+                                "\"status\": \"%s\", \"warehouseId\": %d, \"note\": \"%s\", \"stockAlert\": %d, \"supplierId\": %d }",
+                        product.getId(),
+                        escapeJson(product.getName()),
+                        product.getPrice(),
+                        product.getUnitId(),
+                        product.getCategoryId(),
+                        escapeJson(product.getStatus()),
+                        product.getWarehouseId(),
+                        escapeJson(product.getNote()),
+                        product.getStockAlert(),
+                        product.getSupplierId());
+                response.getWriter().write(json);
+            } else {
+                response.getWriter().write("{\"success\": false, \"message\": \"Product not found\"}");
+            }
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"success\": false, \"message\": \"Invalid product ID format\"}");
+        }
+    }
+
     // Helper to safely escape JSON strings
     private String escapeJson(String str) {
         return str == null ? "" : str.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
@@ -167,13 +220,59 @@ public class AdminServlet extends HttpServlet {
 
     private void handleUsers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Implement user management logic
+        service.AuthService authService = new service.AuthService();
+        List<model.User> users = authService.getAllUsers();
+
+        request.setAttribute("users", users);
         request.getRequestDispatcher("/admin-users.jsp").forward(request, response);
     }
 
     private void handleReports(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Implement reports generation logic
+
+        String type = request.getParameter("type"); // e.g., "totalSale", "reorderLevels"
+        String date = request.getParameter("date"); // optional for some reports
+        
+        if (type == null || type.isEmpty()) {
+            request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
+            return;
+        }
+
+        strategy.ReportStrategy strategy = null;
+
+        switch (type != null ? type : "") {
+            case "totalSale":
+                if (date == null || date.isEmpty()) {
+                    date = java.time.LocalDate.now().toString();
+                }
+                strategy = new strategy.TotalSaleReportStrategy(date);
+                break;
+            case "reshelved":
+                if (date == null || date.isEmpty()) {
+                    date = java.time.LocalDate.now().toString();
+                }
+                strategy = new strategy.ReshelvedItemsReportStrategy(date);
+                break;
+            case "reorderLevels":
+                strategy = new strategy.ReorderLevelsReportStrategy();
+                break;
+            case "stockBatch":
+                strategy = new strategy.StockBatchWiseReportStrategy();
+                break;
+            default:
+                request.setAttribute("error", "Invalid or missing report type");
+                request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
+                return;
+        }
+
+        service.ReportService reportService = new service.ReportService();
+        List<Map<String, Object>> reportData = strategy.generateReport();
+
+        request.setAttribute("reportData", reportData);
+        request.setAttribute("reportTitle", strategy.getReportName());
+        request.setAttribute("reportType", type);
+        request.setAttribute("reportDate", date);
+
         request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
     }
 
@@ -188,17 +287,34 @@ public class AdminServlet extends HttpServlet {
 
     private void handleAddProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String name = request.getParameter("name");
-        int unitId = Integer.parseInt(request.getParameter("unitId"));
-        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        String status = request.getParameter("status");
-        int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-        String note = request.getParameter("note");
-        int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
-        int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+    	
+    	String name = request.getParameter("name");
+
+    	// Unit, Category, and Status are assumed to be always provided
+    	int unitId = Integer.parseInt(request.getParameter("unitId"));
+    	int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+    	String status = request.getParameter("status");
+
+    	// Handle nullable warehouseId
+    	String warehouseIdParam = request.getParameter("warehouseId");
+    	int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam) : 0;
+
+    	// Handle nullable supplierId
+    	String supplierIdParam = request.getParameter("supplierId");
+    	int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam) : 0;
+
+    	// Handle nullable note
+    	String note = request.getParameter("note");
+    	if (note == null) {
+    	    note = "";
+    	}
+
+    	// Stock Alert and Price are required
+    	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
+    	double price = Double.parseDouble(request.getParameter("price"));
 
         int productId = productService.addProduct(name, unitId, categoryId, status,
-                warehouseId, note, stockAlert, supplierId);
+                warehouseId, note, stockAlert, supplierId, price);
 
         response.setContentType("application/json");
         response.getWriter().write("{\"success\": " + (productId > 0) + ", \"id\": " + productId + "}");
@@ -206,18 +322,35 @@ public class AdminServlet extends HttpServlet {
 
     private void handleUpdateProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String name = request.getParameter("name");
-        int unitId = Integer.parseInt(request.getParameter("unitId"));
-        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-        String status = request.getParameter("status");
-        int warehouseId = Integer.parseInt(request.getParameter("warehouseId"));
-        String note = request.getParameter("note");
-        int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
-        int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+
+    	int id = Integer.parseInt(request.getParameter("id"));
+    	String name = request.getParameter("name");
+
+    	// Unit, Category, and Status are assumed to be always provided
+    	int unitId = Integer.parseInt(request.getParameter("unitId"));
+    	int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+    	String status = request.getParameter("status");
+
+    	// Handle nullable warehouseId
+    	String warehouseIdParam = request.getParameter("warehouseId");
+    	int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam) : 0;
+
+    	// Handle nullable supplierId
+    	String supplierIdParam = request.getParameter("supplierId");
+    	int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam) : 0;
+
+    	// Handle nullable note
+    	String note = request.getParameter("note");
+    	if (note == null) {
+    	    note = "";
+    	}
+
+    	// Stock Alert and Price are required
+    	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
+    	double price = Double.parseDouble(request.getParameter("price"));
 
         boolean updated = productService.updateProduct(id, name, unitId, categoryId,
-                status, warehouseId, note, stockAlert, supplierId);
+                status, warehouseId, note, stockAlert, supplierId, price);
 
         response.setContentType("application/json");
         response.getWriter().write("{\"success\": " + updated + "}");
@@ -236,8 +369,6 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
         String name = request.getParameter("name");
         String description = request.getParameter("description");
-        
-        
 
         int categoryId = categoryService.addCategory(name, description);
 
@@ -264,5 +395,19 @@ public class AdminServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.getWriter().write("{\"success\": " + deleted + "}");
+    }
+    
+    private void handleUpdateUserRole(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        String newRole = request.getParameter("newRole");
+
+        service.AuthService authService = new service.AuthService();
+        boolean success = authService.updateUserRole(userId, newRole);
+
+        if (!success) {
+            request.setAttribute("error", "Failed to update role.");
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/users");
     }
 }

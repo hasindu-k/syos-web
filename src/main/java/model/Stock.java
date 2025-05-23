@@ -10,19 +10,13 @@ public class Stock {
     private int id;
     private int productId;
     private int quantity;
-    private double costPrice;
-    private double sellingPrice;
-    private double tax;
     private int warehouseId;
     private Date expiryDate;
     private String batch;
 
-    public Stock(int productId, int quantity, double costPrice, double sellingPrice,
-                 int warehouseId, Date expiryDate) {
+    public Stock(int productId, int quantity, int warehouseId, Date expiryDate) {
         this.productId = productId;
         this.quantity = quantity;
-        this.costPrice = costPrice;
-        this.sellingPrice = sellingPrice;
         this.warehouseId = warehouseId;
         this.expiryDate = expiryDate;
         this.batch = ""; // Default empty batch
@@ -38,15 +32,6 @@ public class Stock {
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
-
-    public double getCostPrice() { return costPrice; }
-    public void setCostPrice(double costPrice) { this.costPrice = costPrice; }
-
-    public double getSellingPrice() { return sellingPrice; }
-    public void setSellingPrice(double sellingPrice) { this.sellingPrice = sellingPrice; }
-
-    public double getTax() { return tax; }
-    public void setTax(double tax) { this.tax = tax; }
 
     public int getWarehouseId() { return warehouseId; }
     public void setWarehouseId(int warehouseId) { this.warehouseId = warehouseId; }

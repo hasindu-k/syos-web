@@ -27,12 +27,15 @@ public class ProductService {
      * @param note Additional notes.
      * @param stockAlert Stock alert level.
      * @param supplierId Supplier ID.
+     * @param price Product price.
+     * @param description Product description.
      * @return Product ID if successful, else -1.
      */
     public int addProduct(String name, int unitId, int categoryId, String status,
-                          int warehouseId, String note, int stockAlert, int supplierId) {
+                          int warehouseId, String note, int stockAlert, int supplierId,
+                          double price) {
         Product product = ModelFactory.createProduct(name, unitId, categoryId, status,
-                warehouseId, note, stockAlert, supplierId);
+                warehouseId, note, stockAlert, supplierId, price);
         return productDao.addProduct(product);
     }
 
@@ -55,12 +58,15 @@ public class ProductService {
      * @param note New notes.
      * @param stockAlert New stock alert level.
      * @param supplierId New Supplier ID.
+     * @param price New Product Price.
+     * @param description New Product Description.
      * @return True if successful, else False.
      */
     public boolean updateProduct(int id, String name, int unitId, int categoryId,
-                                 String status, int warehouseId, String note, int stockAlert, int supplierId) {
+                                 String status, int warehouseId, String note,
+                                 int stockAlert, int supplierId, double price) {
         Product product = ModelFactory.createProduct(name, unitId, categoryId, status,
-                warehouseId, note, stockAlert, supplierId);
+                warehouseId, note, stockAlert, supplierId, price);
         product.setId(id);
         return productDao.updateProduct(product);
     }

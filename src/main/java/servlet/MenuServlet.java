@@ -29,6 +29,9 @@ public class MenuServlet extends HttpServlet {
         case "cashier":
             request.getRequestDispatcher("/cashier-menu.jsp").forward(request, response);
             break;
+        case "manager":
+            request.getRequestDispatcher("/manager-menu.jsp").forward(request, response);
+            break;
         case "customer":
             request.getRequestDispatcher("/customer-menu.jsp").forward(request, response);
             break;

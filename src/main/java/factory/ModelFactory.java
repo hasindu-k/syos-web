@@ -12,8 +12,8 @@ import java.util.List;
  */
 public class ModelFactory {
     public static Product createProduct(String name, int unitId, int categoryId, String status,
-                                        int warehouseId, String note, int stockAlert, int supplierId) {
-        Product product = new Product(name, unitId, categoryId, status, warehouseId, note, stockAlert, supplierId);
+                                        int warehouseId, String note, int stockAlert, int supplierId, double price) {
+        Product product = new Product(name, unitId, categoryId, status, warehouseId, note, stockAlert, supplierId, price);
         return product;
     }
 
@@ -32,7 +32,7 @@ public class ModelFactory {
 
     public static Stock createStock(int productId, int quantity, double cost,
                                     double price, double tax, int warehouseId, java.util.Date expiryDate) {
-        return new Stock(productId, quantity, cost, price, warehouseId, expiryDate);
+        return new Stock(productId, quantity, warehouseId, expiryDate);
     }
 
     

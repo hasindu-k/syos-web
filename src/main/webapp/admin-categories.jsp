@@ -150,7 +150,12 @@
     <h1>Manage Categories</h1>
 
     <div class="action-bar">
-        <a href="${pageContext.request.contextPath}/admin" class="btn btn-primary">Back to Admin Menu</a>
+         <c:if test="${role == 'Admin'}">
+		    <a href="${pageContext.request.contextPath}/admin" class="btn btn-primary">Back to Admin Menu</a>
+		</c:if>
+		<c:if test="${role == 'Manager'}">
+		    <a href="${pageContext.request.contextPath}/menu" class="btn btn-primary">Back to Menu</a>
+		</c:if>
         <button class="btn btn-primary" onclick="showAddCategoryModal()">Add New Category</button>
     </div>
 

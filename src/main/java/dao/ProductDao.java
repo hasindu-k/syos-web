@@ -20,8 +20,8 @@ public class ProductDao {
      * @return Generated Product ID or -1 if failed.
      */
     public int addProduct(Product product) {
-        String query = "INSERT INTO products (name, unit_id, category_id, supplier_id, status, warehouse_id, note, stock_alert) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    	String query = "INSERT INTO products (name, unit_id, category_id, supplier_id, status, warehouse_id, note, stock_alert, price) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, product.getName());
@@ -32,6 +32,7 @@ public class ProductDao {
             stmt.setInt(6, product.getWarehouseId());
             stmt.setString(7, product.getNote());
             stmt.setInt(8, product.getStockAlert());
+            stmt.setDouble(9, product.getPrice());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -71,7 +72,8 @@ public class ProductDao {
                         rs.getInt("warehouse_id"),
                         rs.getString("note"),
                         rs.getInt("stock_alert"),
-                        rs.getInt("supplier_id")
+                        rs.getInt("supplier_id"),
+                        rs.getDouble("price")
                 );
                 product.setId(rs.getInt("id"));
                 products.add(product);
@@ -103,7 +105,8 @@ public class ProductDao {
                             rs.getInt("warehouse_id"),
                             rs.getString("note"),
                             rs.getInt("stock_alert"),
-                            rs.getInt("supplier_id")
+                            rs.getInt("supplier_id"),
+                            rs.getDouble("price")
                     );
                     product.setId(rs.getInt("id"));
                     return product;
@@ -122,8 +125,8 @@ public class ProductDao {
      * @return True if successful, else False.
      */
     public boolean updateProduct(Product product) {
-        String query = "UPDATE products SET name = ?, unit_id = ?, category_id = ?, supplier_id = ?, "
-                + "status = ?, warehouse_id = ?, note = ?, stock_alert = ? WHERE id = ?";
+    	String query = "UPDATE products SET name = ?, unit_id = ?, category_id = ?, supplier_id = ?, "
+                + "status = ?, warehouse_id = ?, note = ?, stock_alert = ?, price = ? WHERE id = ?";
         try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, product.getName());
@@ -134,7 +137,8 @@ public class ProductDao {
             stmt.setInt(6, product.getWarehouseId());
             stmt.setString(7, product.getNote());
             stmt.setInt(8, product.getStockAlert());
-            stmt.setInt(9, product.getId());
+            stmt.setDouble(9, product.getPrice());
+            stmt.setInt(10, product.getId());
 
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0;
@@ -189,7 +193,8 @@ public class ProductDao {
                             rs.getInt("warehouse_id"),
                             rs.getString("note"),
                             rs.getInt("stock_alert"),
-                            rs.getInt("supplier_id")
+                            rs.getInt("supplier_id"),
+                            rs.getDouble("price")
                     );
                     product.setId(rs.getInt("id"));
                     products.add(product);

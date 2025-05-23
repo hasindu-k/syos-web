@@ -10,6 +10,10 @@ public class User {
     private String password;
     private String role; // Admin, Manager, Cashier
     private String type; // Staff, Customer, Supplier
+    
+    public User() {
+        
+    }
 
     public User(String username, String password, String role, String type) {
         this.username = username;

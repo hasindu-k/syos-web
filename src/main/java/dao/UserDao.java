@@ -5,6 +5,8 @@ import model.User;
 import util.DBConnection;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Proxy Pattern.
@@ -85,4 +87,45 @@ public class UserDao implements UserDaoInterface {
             System.out.println("List People Error: " + e.getMessage());
         }
     }
+
+	@Override
+	public List<User> getAllUsers() {
+	    return userDaoProxy.getAllUsers(); // delegate to proxy
+	}
+	
+	public List<User> getAllUsersDirect() {
+	    List<User> users = new ArrayList<>();
+	    String query = "SELECT * FROM users";
+	    try (Connection conn = DBConnection.INSTANCE.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(query);
+	         ResultSet rs = stmt.executeQuery()) {
+
+	        while (rs.next()) {
+	            User user = new User();
+	            user.setId(rs.getInt("id"));
+	            user.setUsername(rs.getString("username"));
+	            user.setPassword(rs.getString("password")); // Optional: omit if not needed
+	            user.setRole(rs.getString("role"));
+	            user.setType(rs.getString("type"));
+	            users.add(user);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("Get All Users Error: " + e.getMessage());
+	    }
+	    return users;
+	}
+	
+	public boolean updateUserRole(int userId, String newRole) {
+	    String query = "UPDATE users SET role = ? WHERE id = ?";
+	    try (Connection conn = DBConnection.INSTANCE.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(query)) {
+	        stmt.setString(1, newRole);
+	        stmt.setInt(2, userId);
+	        return stmt.executeUpdate() > 0;
+	    } catch (SQLException e) {
+	        System.out.println("Update Role Error: " + e.getMessage());
+	        return false;
+	    }
+	}
+
 }
