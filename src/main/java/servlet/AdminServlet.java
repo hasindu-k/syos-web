@@ -37,11 +37,11 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("role") == null ||
-                !session.getAttribute("role").equals("Admin")) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
-            return;
-        }
+//        if (session == null || session.getAttribute("role") == null ||
+//                !session.getAttribute("role").equals("Admin")) {
+//            response.sendRedirect(request.getContextPath() + "/login.jsp");
+//            return;
+//        }
 
         String pathInfo = request.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
