@@ -107,8 +107,9 @@ public class BillController extends BaseController {
             String productName = "Product" + productId; // Placeholder
 
             try {
-                ResultSet productNameRS = DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT `name` FROM `products`"
-                        + " WHERE `id` = '" + productId + "'  ");
+                ResultSet productNameRS = DBConnection.INSTANCE.getConnection().createStatement()
+                        .executeQuery("SELECT `name` FROM `products`"
+                                + " WHERE `id` = '" + productId + "'  ");
                 if (productNameRS.next()) {
                     productName = productNameRS.getString("name");
                 }
@@ -138,7 +139,8 @@ public class BillController extends BaseController {
             }
 
             if (quantity > availableQty) {
-                System.out.println("Entered quantity is more than the available quantity. Please choose less than " + availableQty);
+                System.out.println("Entered quantity is more than the available quantity. Please choose less than "
+                        + availableQty);
                 System.out.print("Enter Quantity: ");
                 quantity = parseIntInput();
             }
@@ -158,17 +160,20 @@ public class BillController extends BaseController {
             discountValue = parseDoubleInput();
         }
 
-//        System.out.print("Enter Tax Type (FIXED/PERCENTAGE or leave blank for none): ");
-//        String taxType = MenuNavigator.getInput();
-//        double taxValue = 0.0;
-//        if (!taxType.isEmpty()) {
-//            System.out.print("Enter Tax Value: ");
-//            taxValue = parseDoubleInput();
-//        }
+        // System.out.print("Enter Tax Type (FIXED/PERCENTAGE or leave blank for none):
+        // ");
+        // String taxType = MenuNavigator.getInput();
+        // double taxValue = 0.0;
+        // if (!taxType.isEmpty()) {
+        // System.out.print("Enter Tax Value: ");
+        // taxValue = parseDoubleInput();
+        // }
         // Calculate totals
-        double discount = discountType.equalsIgnoreCase("PERCENTAGE") ? (subTotal * discountValue / 100) : discountValue;
-//        double tax = taxType.equalsIgnoreCase("PERCENTAGE") ? ((subTotal - discount) * taxValue / 100) : taxValue;
-//        double total = subTotal - discount + tax;
+        double discount = discountType.equalsIgnoreCase("PERCENTAGE") ? (subTotal * discountValue / 100)
+                : discountValue;
+        // double tax = taxType.equalsIgnoreCase("PERCENTAGE") ? ((subTotal - discount)
+        // * taxValue / 100) : taxValue;
+        // double total = subTotal - discount + tax;
         double total = subTotal - discount;
 
         // Payment
@@ -183,7 +188,7 @@ public class BillController extends BaseController {
 
         int billId = billService.generateBill(bill, true);
         if (billId > 0) {
-//            billService.printBill(billId); 
+            // billService.printBill(billId);
             shelvesService shelfService = new shelvesService();
             int shelfSuccess = shelfService.updateShelves(billId);
             int saleSuccess = shelfService.updateSales(billId);
@@ -193,7 +198,7 @@ public class BillController extends BaseController {
                 System.out.println("Failed to update Database");
 
             }
-//            updateShelves(billId);
+            // updateShelves(billId);
         } else {
             System.out.println("Failed to generate bill.");
         }
@@ -202,13 +207,15 @@ public class BillController extends BaseController {
     private void updateShelves(int billID) {
         try {
             Statement statement = DBConnection.INSTANCE.getConnection().createStatement();
-            ResultSet billSet = statement.executeQuery("SELECT * FROM `bill_items` WHERE `bill_id` = '" + billID + "' ");
+            ResultSet billSet = statement
+                    .executeQuery("SELECT * FROM `bill_items` WHERE `bill_id` = '" + billID + "' ");
             while (billSet.next()) {
                 String item_id = billSet.getString("product_id");
                 String qty = billSet.getString("quantity");
                 ResultSet itemSet = statement.executeQuery("SELECT shelves.stocks_id "
                         + "FROM shelves INNER JOIN stocks ON stocks.id = shelves.stocks_id "
-                        + "INNER JOIN products ON products.id = stocks.products_id WHERE products.id = '" + item_id + "';");
+                        + "INNER JOIN products ON products.id = stocks.products_id WHERE products.id = '" + item_id
+                        + "';");
                 if (itemSet.next()) {
                     String stock_id = itemSet.getString("stocks_id");
                     statement.executeUpdate("UPDATE `shelves`"
@@ -229,65 +236,78 @@ public class BillController extends BaseController {
 
                     statement.executeUpdate("INSERT INTO `sales` (customer_id,total_qty,total_amount,"
                             + "payment_type,payment_status,sale_date,bills_id) VALUES ('" + customer_id + "',"
-                            + "'" + total_qty + "','" + total_amount + "','" + payment_type + "','" + payment_status + "','" + sale_date + "','" + billID + "')");
+                            + "'" + total_qty + "','" + total_amount + "','" + payment_type + "','" + payment_status
+                            + "','" + sale_date + "','" + billID + "')");
                 }
 
-//                ResultSet itemSet2 = DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT * "
-//                        + "FROM shelves INNER JOIN stocks ON stocks.id = shelves.stocks_id "
-//                        + "INNER JOIN products ON products.id = stocks.products_id WHERE products.id = '" + item_id + "';");
-//                if (itemSet2.next()) {
-//                    String stock_id = itemSet2.getString("shelves.stocks_id");
-//                    int remainingQty = itemSet2.getInt("shelves.quantity");
-//                    int inStockQty = itemSet2.getInt("stocks.quantity");
-//                    int neededQty = 50 - remainingQty;
-//                    int stockAlert = itemSet2.getInt("stock_alert");
-//                    int sumQty = remainingQty + inStockQty;
-//                    Statement statement = DBConnection.INSTANCE.getConnection().createStatement();
-//                    if (remainingQty < neededQty) {
-//                        if (sumQty < stockAlert) {
-////                            ResultSet shelfItem = DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT * FROM "
-////                                    + "shelves WHERE stocks_id = '" + stock_id + "'");
-//                            statement.executeUpdate("UPDATE stocks SET quantity = '" + remainingQty + "' WHERE stocks.id = '" + stock_id + "'");
-//                            ResultSet newStockSet = statement.executeQuery("""
-//                                                                           SELECT * 
-//                                                                           FROM stocks
-//                                                                           INNER JOIN products ON products.id = stocks.products_id 
-//                                                                           WHERE products.id = '1' 
-//                                                                           AND stocks.quantity > '""" + stockAlert + "' \n"
-//                                    + "ORDER BY stocks.expiry_date ASC \n"
-//                                    + "LIMIT 1;");
-//                            if (newStockSet.next()) {
-//                                String newStockId = newStockSet.getString("stocks.id");
-//                                int newQty = newStockSet.getInt("quantity");
-//                                if (newQty > 50) {
-//                                    newQty = 50;
-//                                }
-//                                statement.executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "',"
-//                                        + " `stocks_id` = '" + newStockId + "' WHERE stocks_id = '" + stock_id + "'  ");
-//
-//                                statement.executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" + newQty + "',"
-//                                        + " WHERE id = '" + newStockId + "'  ");
-//                                System.out.println("Reshelving Completed");
-//
-//                            }
-//                        } else if (sumQty < neededQty) {
-//                            ResultSet newStockSet = statement.executeQuery("SELECT * FROM `stocks` WHERE `id` = '" + stock_id + "'");
-//                            statement.executeUpdate("UPDATE stocks SET quantity = '" + 0 + "' WHERE stocks.id = '" + stock_id + "'");
-//                            if (newStockSet.next()) {
-//                                String newQty = newStockSet.getString("quantity");
-//                                statement.executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "',"
-//                                        + " WHERE stocks_id = '" + stock_id + "'  ");
-//
-//                                statement.executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" + newQty + "',"
-//                                        + " WHERE id = '" + stock_id + "'  ");
-//                                System.out.println("Reshelving Completed");
-//
-//                            }
-//                        }
-//
-//                    }
-//
-//                }
+                // ResultSet itemSet2 =
+                // DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT
+                // * "
+                // + "FROM shelves INNER JOIN stocks ON stocks.id = shelves.stocks_id "
+                // + "INNER JOIN products ON products.id = stocks.products_id WHERE products.id
+                // = '" + item_id + "';");
+                // if (itemSet2.next()) {
+                // String stock_id = itemSet2.getString("shelves.stocks_id");
+                // int remainingQty = itemSet2.getInt("shelves.quantity");
+                // int inStockQty = itemSet2.getInt("stocks.quantity");
+                // int neededQty = 50 - remainingQty;
+                // int stockAlert = itemSet2.getInt("stock_alert");
+                // int sumQty = remainingQty + inStockQty;
+                // Statement statement =
+                // DBConnection.INSTANCE.getConnection().createStatement();
+                // if (remainingQty < neededQty) {
+                // if (sumQty < stockAlert) {
+                //// ResultSet shelfItem =
+                // DBConnection.INSTANCE.getConnection().createStatement().executeQuery("SELECT
+                // * FROM "
+                //// + "shelves WHERE stocks_id = '" + stock_id + "'");
+                // statement.executeUpdate("UPDATE stocks SET quantity = '" + remainingQty + "'
+                // WHERE stocks.id = '" + stock_id + "'");
+                // ResultSet newStockSet = statement.executeQuery("""
+                // SELECT *
+                // FROM stocks
+                // INNER JOIN products ON products.id = stocks.products_id
+                // WHERE products.id = '1'
+                // AND stocks.quantity > '""" + stockAlert + "' \n"
+                // + "ORDER BY stocks.expiry_date ASC \n"
+                // + "LIMIT 1;");
+                // if (newStockSet.next()) {
+                // String newStockId = newStockSet.getString("stocks.id");
+                // int newQty = newStockSet.getInt("quantity");
+                // if (newQty > 50) {
+                // newQty = 50;
+                // }
+                // statement.executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "',"
+                // + " `stocks_id` = '" + newStockId + "' WHERE stocks_id = '" + stock_id + "'
+                // ");
+                //
+                // statement.executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" +
+                // newQty + "',"
+                // + " WHERE id = '" + newStockId + "' ");
+                // System.out.println("Reshelving Completed");
+                //
+                // }
+                // } else if (sumQty < neededQty) {
+                // ResultSet newStockSet = statement.executeQuery("SELECT * FROM `stocks` WHERE
+                // `id` = '" + stock_id + "'");
+                // statement.executeUpdate("UPDATE stocks SET quantity = '" + 0 + "' WHERE
+                // stocks.id = '" + stock_id + "'");
+                // if (newStockSet.next()) {
+                // String newQty = newStockSet.getString("quantity");
+                // statement.executeUpdate("UPDATE shelves SET `quantity` = '" + newQty + "',"
+                // + " WHERE stocks_id = '" + stock_id + "' ");
+                //
+                // statement.executeUpdate("UPDATE stocks SET `quantity` = `quantity` - '" +
+                // newQty + "',"
+                // + " WHERE id = '" + stock_id + "' ");
+                // System.out.println("Reshelving Completed");
+                //
+                // }
+                // }
+                //
+                // }
+                //
+                // }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -383,4 +403,71 @@ public class BillController extends BaseController {
             return 0.0;
         }
     }
+
+    /**
+     * Generates a bill from the web interface.
+     *
+     * @param customerId     ID of the customer (or -1 for walk-in)
+     * @param items          List of BillItem objects
+     * @param discountType   "FIXED" or "PERCENTAGE" (can be empty)
+     * @param discountValue  Value for discount
+     * @param receivedAmount Amount paid by customer
+     * @return Generated bill ID or -1 on failure
+     */
+    public int generateBillWeb(int customerId, List<BillItem> items, String discountType, double discountValue,
+            double receivedAmount) {
+        double subTotal = 0.0;
+        int totalQty = 0;
+
+        for (BillItem item : items) {
+            totalQty += item.getQuantity();
+            subTotal += item.getTotalPrice();
+        }
+
+        double discount = discountType.equalsIgnoreCase("PERCENTAGE")
+                ? (subTotal * discountValue / 100)
+                : discountValue;
+
+        double total = subTotal - discount;
+        double changeReturn = receivedAmount - total;
+
+        Bill bill = new Bill(
+                customerId != -1 ? customerId : null,
+                totalQty,
+                subTotal,
+                discountType,
+                discountValue,
+                total,
+                receivedAmount,
+                changeReturn,
+                "Cash",
+                "Paid",
+                items);
+
+        int billId = billService.generateBill(bill, true);
+        if (billId > 0) {
+            try {
+                shelvesService shelfService = new shelvesService();
+                int shelfSuccess = shelfService.updateShelves(billId);
+                int saleSuccess = shelfService.updateSales(billId);
+                if (shelfSuccess == 1 && saleSuccess == 1) {
+                    return billId;
+                } else {
+                    System.err.println("Shelf or sale update failed for bill ID: " + billId);
+                }
+            } catch (Exception e) {
+                System.err.println("Exception while updating shelves/sales: " + e.getMessage());
+            }
+        } else {
+            System.err.println("Failed to generate bill.");
+
+        }
+
+        return -1;
+    }
+
+    public CustomerService getCustomerService() {
+        return this.customerService;
+    }
+
 }

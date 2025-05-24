@@ -72,4 +72,9 @@ public class CustomerService {
     public Integer getCustomerIdByUsername(String username) {
         return customerDao.getCustomerIdByUsername(username);
     }
+
+    public List<Customer> searchCustomersByName(String namePart) {
+        return new CustomerDao().searchByName(namePart);
+    }
+
 }

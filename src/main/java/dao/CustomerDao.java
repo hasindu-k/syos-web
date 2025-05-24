@@ -131,4 +131,25 @@ public class CustomerDao {
         }
         return null;
     }
+
+    public List<Customer> searchByName(String namePart) {
+        List<Customer> list = new ArrayList<>();
+        String sql = "SELECT * FROM customers WHERE name LIKE ?";
+        try (PreparedStatement stmt = DBConnection.INSTANCE.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, "%" + namePart + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Customer c = new Customer(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("phone"));
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }
