@@ -47,7 +47,20 @@
                 <tr>
                     <td><%= index++ %></td>
                     <td><%= product.getName() %></td>
-                    <td><%= quantity %></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">
+                                <%= quantity %>
+                            </span>
+                            <form action="cart" method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="removeAll" />
+                                <input type="hidden" name="productId" value="<%= productId %>" />
+                                    <button type="submit" class="btn btn-sm btn-outline-warning px-2 py-0" title="Remove item">
+                                        🗑️
+                                    </button>
+                            </form>
+                        </div>
+                    </td>
                     <td><%= price %></td>
                     <td><%= lineTotal %></td>
                 </tr>
@@ -65,9 +78,7 @@
     <div class="d-flex justify-content-between align-items-center mt-4">
     <button class="btn btn-outline-secondary" onclick="history.back()">Back</button>
 
-    <form action="checkout" method="post" class="mb-0">
-        <button class="btn btn-success btn-lg">Proceed to Checkout</button>
-    </form>
+    <a href="checkout.jsp" class="btn btn-success btn-lg">Proceed to Checkout</a>
 </div>
 <%
     }
