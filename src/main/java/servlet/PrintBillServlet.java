@@ -1,27 +1,21 @@
 package servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import jakarta.servlet.ServletException;
+
+import controller.BillController;
 import model.Bill;
 import model.BillItem;
 
+import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.font.*;
+import com.itextpdf.layout.*;
+import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.property.UnitValue;
+
 import java.io.IOException;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDFontFactory;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-
-import controller.BillController;
-
-/**
- * Servlet implementation class PrintBillServlet
- */
 @WebServlet("/print-bill")
 public class PrintBillServlet extends HttpServlet {
     private final BillController billController = new BillController();
@@ -31,67 +25,75 @@ public class PrintBillServlet extends HttpServlet {
             throws IOException {
 
         String billIdParam = request.getParameter("billId");
-        int billId = Integer.parseInt(billIdParam);
+
+        if (billIdParam == null || billIdParam.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing billId");
+            return;
+        }
+
+        int billId;
+        try {
+            billId = Integer.parseInt(billIdParam);
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid billId");
+            return;
+        }
 
         Bill bill = billController.getBillById(billId);
-
         if (bill == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Bill not found");
             return;
         }
 
         response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=bill-" + billId + ".pdf");
+        response.setHeader("Content-Disposition", "inline; filename=bill-" + billId + ".pdf");
 
-        try (PDDocument doc = new PDDocument()) {
-            PDPage page = new PDPage();
-            doc.addPage(page);
+        try {
+            PdfWriter writer = new PdfWriter(response.getOutputStream());
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document doc = new Document(pdfDoc);
 
-            PDPageContentStream content = new PDPageContentStream(doc, page);
+            PdfFont font = PdfFontFactory.createFont();
+            doc.setFont(font);
 
-            PDFont font = PDFontFactory.createDefaultFont();
-
-            content.setFont(font, 12);
-            content.beginText();
-            content.setLeading(14.5f);
-            content.newLineAtOffset(50, 700);
-
-            content.showText("Bill ID: " + bill.getId());
-            content.newLine();
-            content.showText("Date: " + bill.getBillDate());
-            content.newLine();
+            // Header
+            doc.add(new Paragraph("Bill ID: " + bill.getId()));
+            doc.add(new Paragraph("Date: " + bill.getBillDate()));
             String customerName = bill.getCustomerId() != null
                     ? billController.getCustomerService().getCustomerById(bill.getCustomerId()).getName()
                     : "Walk-in Customer";
-            content.newLine();
-            content.newLine();
-            content.showText("Items:");
-            content.newLine();
+            doc.add(new Paragraph("Customer: " + customerName));
+            doc.add(new Paragraph(" "));
+
+            // Table
+            Table table = new Table(UnitValue.createPercentArray(new float[]{4, 2, 2, 2}))
+                    .useAllAvailableWidth();
+            table.addHeaderCell("Product");
+            table.addHeaderCell("Qty");
+            table.addHeaderCell("Price");
+            table.addHeaderCell("Total");
 
             for (BillItem item : bill.getItems()) {
-                content.showText(
-                        "- " + item.getProductName() + " | Qty: " + item.getQuantity() + " | ₹" + item.getPrice());
-                content.newLine();
+                table.addCell(item.getProductName());
+                table.addCell(String.valueOf(item.getQuantity()));
+                table.addCell("Rs. " + item.getPrice());
+                table.addCell("Rs. " + item.getTotalPrice());
             }
 
-            content.newLine();
-            content.showText("Subtotal: Rs." + bill.getSubTotal());
-            content.newLine();
-            content.showText("Discount: " + bill.getDiscountType() + " " + bill.getDiscountValue());
-            content.newLine();
-            content.showText("Total: Rs." + bill.getTotal());
-            content.newLine();
-            content.showText("Received: Rs." + bill.getReceivedAmount());
-            content.newLine();
-            content.showText("Change Return: Rs." + bill.getChangeReturn());
+            doc.add(table);
+            doc.add(new Paragraph(" "));
+            doc.add(new Paragraph("Subtotal: Rs. " + bill.getSubTotal()));
+            doc.add(new Paragraph("Discount: " + bill.getDiscountType() + " " + bill.getDiscountValue()));
+            doc.add(new Paragraph("Total: Rs. " + bill.getTotal()));
+            doc.add(new Paragraph("Received: Rs. " + bill.getReceivedAmount()));
+            doc.add(new Paragraph("Change Return: Rs. " + bill.getChangeReturn()));
 
-            content.endText();
-            content.close();
+            doc.close(); // flushes everything properly
 
-            doc.save(response.getOutputStream());
         } catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(500, "Failed to generate PDF");
+//            e.printStackTrace();
+            response.reset(); // important to prevent corrupt output
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to generate PDF");
         }
     }
 }
