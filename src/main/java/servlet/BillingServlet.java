@@ -34,13 +34,15 @@ public class BillingServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         CustomerService customerService = new CustomerService();
         ProductService productService = new ProductService();
 
         String customerIdParam = request.getParameter("customerId");
         int customerId = -1;
-
-        customerId = Integer.parseInt(customerIdParam);
+        if (customerIdParam != null && !customerIdParam.isEmpty()) {
+            customerId = Integer.parseInt(customerIdParam);
+        }
 
         String[] productIds = request.getParameterValues("productId");
         String[] quantities = request.getParameterValues("quantity");
@@ -53,12 +55,11 @@ public class BillingServlet extends HttpServlet {
             int pid = Integer.parseInt(productIds[i]);
             int qty = Integer.parseInt(quantities[i]);
 
-            // Get real product
             model.Product product = productService.getProductById(pid);
             if (product == null)
                 continue;
 
-            double price = product.getPrice(); // assumes price is set
+            double price = product.getPrice();
             String name = product.getName();
 
             items.add(new BillItem(pid, name, qty, price));
@@ -72,17 +73,38 @@ public class BillingServlet extends HttpServlet {
             return;
         }
 
-        // 3. Submit to controller
-        BillController billController = new BillController();
-        int billId = billController.generateBillWeb(customerId, items, "", 0.0, subTotal);
+        // Read discount and received amount from request
+        String discountType = request.getParameter("discountType");
+        String discountValueParam = request.getParameter("discountValue");
+        String receivedAmountParam = request.getParameter("receivedAmount");
+
+        double discountValue = 0.0;
+        double receivedAmount = subTotal;
+
+        if (discountValueParam != null && !discountValueParam.isEmpty()) {
+            discountValue = Double.parseDouble(discountValueParam);
+        }
+
+        if (receivedAmountParam != null && !receivedAmountParam.isEmpty()) {
+            receivedAmount = Double.parseDouble(receivedAmountParam);
+        }
+
+        int billId = billController.generateBillWeb(customerId, items, discountType, discountValue, receivedAmount);
 
         if (billId > 0) {
-            response.sendRedirect("billing-success.jsp?billId=" + billId);
+            model.Bill bill = billController.getBillById(billId);
+            request.setAttribute("billId", billId);
+            request.setAttribute("bill", bill);
+            request.setAttribute("customerName", (bill.getCustomerId() != null)
+                    ? customerService.getCustomerById(bill.getCustomerId()).getName()
+                    : "Walk-in Customer");
+            request.getRequestDispatcher("/billing-success.jsp").forward(request, response);
         } else {
             request.setAttribute("error", "Failed to generate bill.");
             response.sendRedirect("billing-error.jsp");
             doGet(request, response);
         }
     }
+
 
 }

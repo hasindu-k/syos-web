@@ -1,18 +1,41 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="model.Product" %>
 <%@ page import="service.ProductService" %>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
+
 <%
     request.setAttribute("pageTitle", "Your Cart");
 %>
 <jsp:include page="/header.jsp" />
 
-<!-- Modern Cart UI -->
 <div class="container py-5">
-    <h1 class="display-5 fw-bold text-primary text-center mb-3">
-        <i class="bi bi-cart3 me-2"></i>Your Shopping Cart
-    </h1>
-    <p class="text-muted text-center mb-4">Review your selected items before proceeding to checkout.</p>
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="bi bi-cart3 me-2"></i>Your Shopping Cart
+        </h1>
+        <p class="text-muted">Review your selected items before proceeding to checkout.</p>
+    </div>
 
+    <%-- ✅ Success/Error Messages --%>
+    <%
+        String success = (String) request.getAttribute("success");
+        String error = (String) request.getAttribute("error");
+        if (success != null) {
+    %>
+        <div class="alert alert-success mx-auto shadow-sm rounded text-center" style="max-width: 600px;">
+            <i class="bi bi-check-circle-fill me-2"></i><%= success %>
+        </div>
+    <%
+        } else if (error != null) {
+    %>
+        <div class="alert alert-danger mx-auto shadow-sm rounded text-center" style="max-width: 600px;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error %>
+        </div>
+    <%
+        }
+    %>
+
+    <%-- ✅ Cart Display --%>
     <%
         Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
         ProductService productService = new ProductService();
@@ -20,8 +43,15 @@
 
         if (cart == null || cart.isEmpty()) {
     %>
-        <div class="alert alert-info text-center p-4 shadow-sm rounded">
-            <i class="bi bi-info-circle me-2"></i>Your cart is currently empty.
+        <div class="alert alert-info text-center mx-auto shadow-sm rounded" style="max-width: 600px;">
+            <i class="bi bi-info-circle me-2"></i>
+            <%= (success != null) ? "Order placed successfully! Your cart is now empty." : "Your cart is currently empty." %>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="products" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-list me-2"></i>Back to Menu
+            </a>
         </div>
     <%
         } else {
@@ -35,8 +65,8 @@
                                 <th>#</th>
                                 <th>Product</th>
                                 <th class="text-center">Quantity</th>
-                                <th class="text-end">Unit Price (LKR)</th>
-                                <th class="text-end">Subtotal (LKR)</th>
+                                <th class="text-end">Unit Price (Rs.)</th>
+                                <th class="text-end">Subtotal (Rs.)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,7 +75,8 @@
                                 for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
                                     int productId = entry.getKey();
                                     int quantity = entry.getValue();
-                                    Product product = productService.getProductById(productId);
+                                    model.Product product = productService.getProductById(productId);
+                                    if (product == null) continue;
                                     double price = product.getPrice();
                                     double lineTotal = price * quantity;
                                     total += lineTotal;
@@ -81,10 +112,12 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-4">
+        <%-- ✅ Action Buttons --%>
+        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
             <a href="products" class="btn btn-outline-primary btn-lg">
                 <i class="bi bi-arrow-left-circle me-2"></i>Continue Shopping
             </a>
+           
             <a href="checkout.jsp" class="btn btn-success btn-lg">
                 Proceed to Checkout <i class="bi bi-arrow-right-circle ms-2"></i>
             </a>
