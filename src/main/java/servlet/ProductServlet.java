@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ProductServlet extends HttpServlet {
     private ProductService productService;
     private CategoryService categoryService;
-    private StockService stockService; 
+    private StockService stockService;
 
     @Override
     public void init() {
@@ -32,13 +32,13 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         // Get product list from service
         List<Product> products = productService.getAllProducts();
         List<Category> categories = categoryService.getAllCategories();
         Map<Integer, String> categoryMap = categories.stream()
-            .collect(Collectors.toMap(Category::getId, Category::getName));
-        
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+
         List<ProductView> viewModels = new ArrayList<>();
         for (Product product : products) {
             String categoryName = categoryMap.get(product.getCategoryId());

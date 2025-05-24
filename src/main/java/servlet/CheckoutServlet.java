@@ -62,7 +62,7 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         // Basic discount and payment settings (can be extended)
-        String discountType = "";  // e.g., "FIXED", "PERCENTAGE"
+        String discountType = ""; // e.g., "FIXED", "PERCENTAGE"
         double discountValue = 0;
         double discount = 0;
         double total = subTotal - discount;

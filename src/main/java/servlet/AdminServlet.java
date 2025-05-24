@@ -42,7 +42,7 @@ public class AdminServlet extends HttpServlet {
         // response.sendRedirect(request.getContextPath() + "/login.jsp");
         // return;
         // }
-        
+
         String role = null;
         if (session != null) {
             role = (String) session.getAttribute("role");
@@ -232,7 +232,7 @@ public class AdminServlet extends HttpServlet {
 
         String type = request.getParameter("type"); // e.g., "totalSale", "reorderLevels"
         String date = request.getParameter("date"); // optional for some reports
-        
+
         if (type == null || type.isEmpty()) {
             request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
             return;
@@ -287,31 +287,33 @@ public class AdminServlet extends HttpServlet {
 
     private void handleAddProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	
-    	String name = request.getParameter("name");
 
-    	// Unit, Category, and Status are assumed to be always provided
-    	int unitId = Integer.parseInt(request.getParameter("unitId"));
-    	int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-    	String status = request.getParameter("status");
+        String name = request.getParameter("name");
 
-    	// Handle nullable warehouseId
-    	String warehouseIdParam = request.getParameter("warehouseId");
-    	int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam) : 0;
+        // Unit, Category, and Status are assumed to be always provided
+        int unitId = Integer.parseInt(request.getParameter("unitId"));
+        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        String status = request.getParameter("status");
 
-    	// Handle nullable supplierId
-    	String supplierIdParam = request.getParameter("supplierId");
-    	int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam) : 0;
+        // Handle nullable warehouseId
+        String warehouseIdParam = request.getParameter("warehouseId");
+        int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam)
+                : 0;
 
-    	// Handle nullable note
-    	String note = request.getParameter("note");
-    	if (note == null) {
-    	    note = "";
-    	}
+        // Handle nullable supplierId
+        String supplierIdParam = request.getParameter("supplierId");
+        int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam)
+                : 0;
 
-    	// Stock Alert and Price are required
-    	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
-    	double price = Double.parseDouble(request.getParameter("price"));
+        // Handle nullable note
+        String note = request.getParameter("note");
+        if (note == null) {
+            note = "";
+        }
+
+        // Stock Alert and Price are required
+        int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
+        double price = Double.parseDouble(request.getParameter("price"));
 
         int productId = productService.addProduct(name, unitId, categoryId, status,
                 warehouseId, note, stockAlert, supplierId, price);
@@ -323,31 +325,33 @@ public class AdminServlet extends HttpServlet {
     private void handleUpdateProduct(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-    	int id = Integer.parseInt(request.getParameter("id"));
-    	String name = request.getParameter("name");
+        int id = Integer.parseInt(request.getParameter("id"));
+        String name = request.getParameter("name");
 
-    	// Unit, Category, and Status are assumed to be always provided
-    	int unitId = Integer.parseInt(request.getParameter("unitId"));
-    	int categoryId = Integer.parseInt(request.getParameter("categoryId"));
-    	String status = request.getParameter("status");
+        // Unit, Category, and Status are assumed to be always provided
+        int unitId = Integer.parseInt(request.getParameter("unitId"));
+        int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+        String status = request.getParameter("status");
 
-    	// Handle nullable warehouseId
-    	String warehouseIdParam = request.getParameter("warehouseId");
-    	int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam) : 0;
+        // Handle nullable warehouseId
+        String warehouseIdParam = request.getParameter("warehouseId");
+        int warehouseId = (warehouseIdParam != null && !warehouseIdParam.isEmpty()) ? Integer.parseInt(warehouseIdParam)
+                : 0;
 
-    	// Handle nullable supplierId
-    	String supplierIdParam = request.getParameter("supplierId");
-    	int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam) : 0;
+        // Handle nullable supplierId
+        String supplierIdParam = request.getParameter("supplierId");
+        int supplierId = (supplierIdParam != null && !supplierIdParam.isEmpty()) ? Integer.parseInt(supplierIdParam)
+                : 0;
 
-    	// Handle nullable note
-    	String note = request.getParameter("note");
-    	if (note == null) {
-    	    note = "";
-    	}
+        // Handle nullable note
+        String note = request.getParameter("note");
+        if (note == null) {
+            note = "";
+        }
 
-    	// Stock Alert and Price are required
-    	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
-    	double price = Double.parseDouble(request.getParameter("price"));
+        // Stock Alert and Price are required
+        int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
+        double price = Double.parseDouble(request.getParameter("price"));
 
         boolean updated = productService.updateProduct(id, name, unitId, categoryId,
                 status, warehouseId, note, stockAlert, supplierId, price);
@@ -396,7 +400,7 @@ public class AdminServlet extends HttpServlet {
         response.setContentType("application/json");
         response.getWriter().write("{\"success\": " + deleted + "}");
     }
-    
+
     private void handleUpdateUserRole(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("userId"));

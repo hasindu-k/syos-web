@@ -30,8 +30,10 @@ public class StockServlet extends HttpServlet {
         String message = request.getParameter("message");
         String error = request.getParameter("error");
 
-        if (message != null) request.setAttribute("message", message);
-        if (error != null) request.setAttribute("error", error);
+        if (message != null)
+            request.setAttribute("message", message);
+        if (error != null)
+            request.setAttribute("error", error);
 
         List<Stock> stocks;
 

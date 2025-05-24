@@ -48,7 +48,7 @@ public class RegisterServlet extends HttpServlet {
 
             // If role is customer, create customer record
             if ("customer".equalsIgnoreCase(role)) {
-            	customerService.registerCustomer(fullName, email, phone);
+                customerService.registerCustomer(fullName, email, phone);
 
             }
 
