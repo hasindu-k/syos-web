@@ -4,7 +4,26 @@
     request.setAttribute("pageTitle", "Login - Synex POS");
 %>
 
-<div class="card p-4">
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 30px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        background-color: #ffffff;
+    }
+
+    .login-logo {
+        display: block;
+        margin: 0 auto 20px;
+        width: 100px;
+    }
+</style>
+
+<div class="login-container">
+    <img src="img/SYOS.png" alt="SYOS Logo" class="login-logo">
+
     <h4 class="text-center mb-4">Login to Synex POS</h4>
 
     <% String error = (String) request.getAttribute("error"); %>

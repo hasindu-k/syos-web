@@ -5,39 +5,52 @@
     <jsp:param name="pageTitle" value="User Management"/>
 </jsp:include>
 
-<h1>User Management</h1>
+<div class="container py-4">
+    <!-- Top Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">User Management</h2>
+        <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back to Admin Menu
+        </a>
+    </div>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Current Role</th>
-            <th>Change Role</th>
-        </tr>
-    </thead>
-    <tbody>
-        <c:forEach var="user" items="${users}">
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.role}</td>
-                <td>
-                    <form action="${pageContext.request.contextPath}/admin/users/updateRole" method="post" class="d-flex">
-                        <input type="hidden" name="userId" value="${user.id}" />
-                        <select name="newRole" class="form-select form-select-sm me-2">
-                            <c:forEach var="role" items="${['Admin', 'Manager', 'Cashier', 'Customer']}">
-                                <option value="${role}" ${user.role == role ? 'selected' : ''}>${role}</option>
-                            </c:forEach>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-secondary">Update</button>
-                    </form>
-                </td>
-            </tr>
-        </c:forEach>
-    </tbody>
-</table>
-
-<a href="${pageContext.request.contextPath}/admin" class="btn btn-primary mt-3">Back to Admin Menu</a>
+    <!-- User Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Current Role</th>
+                        <th>Change Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="user" items="${users}">
+                        <tr class="align-middle text-center">
+                            <td>${user.id}</td>
+                            <td>${user.username}</td>
+                            <td>
+                                <span class="badge bg-info text-dark">${user.role}</span>
+                            </td>
+                            <td>
+                                <form action="${pageContext.request.contextPath}/admin/users/updateRole" method="post" class="d-flex justify-content-center align-items-center">
+                                    <input type="hidden" name="userId" value="${user.id}" />
+                                    <select name="newRole" class="form-select form-select-sm me-2" style="width: auto;">
+                                        <c:forEach var="role" items="${['Admin', 'Manager', 'Cashier', 'Customer']}">
+                                            <option value="${role}" ${user.role == role ? 'selected' : ''}>${role}</option>
+                                        </c:forEach>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <jsp:include page="/footer.jsp"/>
