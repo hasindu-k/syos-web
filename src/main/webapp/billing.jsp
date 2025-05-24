@@ -2,39 +2,58 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="header.jsp" %>
 
-<h2>Billing Page</h2>
+<div class="container my-5 p-4 shadow rounded bg-light">
+    <h2 class="mb-4 text-center text-primary">Billing Page</h2>
 
-<form method="post" action="billing">
-    <!-- Autocomplete Customer Name -->
-    <div class="mb-3">
-        <label for="customerSearch" class="form-label">Customer Name</label>
-        <input type="text" class="form-control" id="customerSearch" name="customerName" autocomplete="off">
-        <input type="hidden" id="customerId" name="customerId">
-        <div id="suggestions" class="list-group position-absolute" style="z-index:999"></div>
+    <form method="post" action="billing">
+        <!-- Customer Search -->
+        <div class="mb-4 position-relative">
+            <label for="customerSearch" class="form-label fw-semibold">Customer Name</label>
+            <input type="text" class="form-control" id="customerSearch" name="customerName" autocomplete="off" placeholder="Start typing customer name...">
+            <input type="hidden" id="customerId" name="customerId">
+            <div id="suggestions" class="list-group position-absolute w-100 mt-1" style="z-index:999"></div>
+        </div>
+
+        <!-- Product List -->
+        <div id="productList" class="mb-4">
+            <div class="d-flex fw-bold mb-2">
+                <div class="me-2 w-50">Product ID</div>
+                <div class="me-2 w-50">Quantity</div>
+            </div>
+
+            <!-- Initial Product Row -->
+            <div class="d-flex mb-2 align-items-center product-row">
+                <input type="number" class="form-control me-2 w-50" name="productId" placeholder="Product ID" required>
+                <input type="number" class="form-control me-2 w-50" name="quantity" placeholder="Quantity" required>
+                <button type="button" class="btn btn-outline-danger ms-2" onclick="removeProduct(this)">✖</button>
+            </div>
+        </div>
+
+        <!-- Discount -->
+<div class="row">
+    <!-- Discount -->
+    <div class="col-md-6 mb-3">
+        <label for="discount" class="form-label fw-semibold">Discount (%)</label>
+        <input type="number" step="0.01" class="form-control" id="discount" name="discountValue" placeholder="Enter discount in %" min="0">
+        <input type="hidden" name="discountType" value="PERCENTAGE">
     </div>
 
-    <!-- Product List -->
-    <div id="productList" class="mb-3">
-        <div class="d-flex mb-2 fw-bold">
-            <div class="me-2" style="width: 40%;">Product ID</div>
-            <div class="me-2" style="width: 40%;">Quantity</div>
-            <div style="width: 20%;"></div>
-        </div>
-        <!-- Initial Row -->
-        <div class="d-flex mb-2 align-items-center">
-            <input type="number" class="form-control me-2" name="productId" placeholder="Product ID"
-                style="width: 40%;" required>
-            <input type="number" class="form-control me-2" name="quantity" placeholder="Quantity"
-                style="width: 40%;" required>
-            <button type="button" class="btn btn-danger" style="width: 20%;" onclick="removeProduct(this)">✖</button>
-        </div>
+    <!-- Received Amount -->
+    <div class="col-md-6 mb-3">
+        <label for="receivedAmount" class="form-label fw-semibold">Received Amount</label>
+        <input type="number" step="0.01" class="form-control" id="receivedAmount" name="receivedAmount" placeholder="Enter received amount" min="0">
     </div>
+</div>
 
-    <button type="button" class="btn btn-secondary mb-3" onclick="addProductRow()">+ Add
-        Product</button><br>
 
-    <button type="submit" class="btn btn-primary">Generate Bill</button>
-</form>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-secondary" onclick="addProductRow()">+ Add Product</button>
+            <button type="submit" class="btn btn-primary">Generate Bill</button>
+        </div>
+    </form>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -65,11 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initProductRows() {
-    const productList = document.getElementById("productList");
-
-    productList.querySelectorAll('.product-row').forEach(row => {
-        const qtyInput = row.querySelector('input[name="quantity"]');
-        qtyInput.addEventListener("keydown", (e) => {
+    document.querySelectorAll('.product-row input[name="quantity"]').forEach(input => {
+        input.addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
                 addProductRow();
@@ -86,31 +102,28 @@ function addProductRow() {
     productId.type = "number";
     productId.name = "productId";
     productId.placeholder = "Product ID";
-    productId.className = "form-control me-2";
-    productId.style.width = "40%";
+    productId.className = "form-control me-2 w-50";
     productId.required = true;
 
     const quantity = document.createElement("input");
     quantity.type = "number";
     quantity.name = "quantity";
     quantity.placeholder = "Quantity";
-    quantity.className = "form-control me-2";
-    quantity.style.width = "40%";
+    quantity.className = "form-control me-2 w-50";
     quantity.required = true;
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
-    removeBtn.className = "btn btn-danger";
+    removeBtn.className = "btn btn-outline-danger ms-2";
     removeBtn.textContent = "✖";
     removeBtn.onclick = () => removeProduct(removeBtn);
-    removeBtn.style.width = "20%";
 
     row.appendChild(productId);
     row.appendChild(quantity);
     row.appendChild(removeBtn);
+
     document.getElementById("productList").appendChild(row);
 
-    // Attach event listener to new row
     quantity.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -125,26 +138,10 @@ function removeProduct(button) {
     const row = button.parentElement;
     const list = document.getElementById("productList");
     const rows = list.querySelectorAll('.product-row');
-
-    if (rows.length >= 1) {
+    if (rows.length > 1) {
         row.remove();
     }
 }
-
-document.addEventListener("keydown", function (e) {
-    const activeEl = document.activeElement;
-    if (
-        e.key === "Enter" &&
-        activeEl &&
-        (activeEl.name === "productId" || activeEl.name === "quantity")
-    ) {
-        e.preventDefault(); // prevent form submission
-        if (activeEl.name === "quantity") {
-            addProductRow(); // only when in quantity field
-        }
-    }
-});
-
 </script>
 
 <%@ include file="footer.jsp" %>
