@@ -18,7 +18,8 @@ public class CustomerService {
 
     /**
      * Adds a new customer.
-     * @param name Customer name.
+     * 
+     * @param name  Customer name.
      * @param email Customer email.
      * @param phone Customer phone.
      * @return Customer ID if successful, else -1.
@@ -30,6 +31,7 @@ public class CustomerService {
 
     /**
      * Retrieves all customers.
+     * 
      * @return List of customers.
      */
     public List<Customer> getAllCustomers() {
@@ -38,16 +40,17 @@ public class CustomerService {
 
     /**
      * Retrieves a customer by their ID.
+     * 
      * @param id Customer ID.
      * @return Customer object if found, else null.
      */
     public Customer getCustomerById(Integer id) {
         return customerDao.getCustomerById(id);
     }
-    
+
     public void registerCustomer(String name, String email, String phone) {
         Customer customer = new Customer(name, email, phone);
-        
+
         if (!isValidEmail(customer.getEmail())) {
             throw new IllegalArgumentException("Invalid email format");
         }
@@ -64,5 +67,9 @@ public class CustomerService {
 
     private boolean emailExists(String email) {
         return customerDao.emailExists(email);
+    }
+
+    public Integer getCustomerIdByUsername(String username) {
+        return customerDao.getCustomerIdByUsername(username);
     }
 }
