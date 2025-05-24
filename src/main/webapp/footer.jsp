@@ -74,7 +74,7 @@
                 
         fetch(url, {
             method: 'POST',
-            body: new URLSearchParams(formData)
+            body: formData
         })
         .then(response => response.json())
         .then(data => {

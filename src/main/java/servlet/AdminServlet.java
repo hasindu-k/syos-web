@@ -1,17 +1,21 @@
 package servlet;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import model.Category;
 import model.Product;
 import model.ProductView;
@@ -19,6 +23,11 @@ import service.CategoryService;
 import service.ProductService;
 import service.StockService;
 
+@MultipartConfig(
+	    fileSizeThreshold = 1024 * 1024,    // 1MB
+	    maxFileSize = 5 * 1024 * 1024,      // 5MB
+	    maxRequestSize = 10 * 1024 * 1024   // 10MB
+	)
 @WebServlet("/admin/*")
 public class AdminServlet extends HttpServlet {
     private ProductService productService;
@@ -308,12 +317,29 @@ public class AdminServlet extends HttpServlet {
     	if (note == null) {
     	    note = "";
     	}
+    	
+    	// Handle file upload
+//        Part filePart = request.getPart("productImage");
+//        String imagePath = null;
+//        
+//    	if (filePart != null && filePart.getSize() > 0) {
+//            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+////            String uploadDir = getServletContext().getRealPath("/product-images");
+//            String uploadDir = System.getProperty("user.dir") + "/src/main/webapp/product-images";
+//
+//            File uploadFolder = new File(uploadDir);
+//            if (!uploadFolder.exists()) uploadFolder.mkdirs();
+//
+//            String fullPath = uploadDir + File.separator + fileName;
+//            filePart.write(fullPath);
+//            imagePath = "product-images/" + fileName;
+//        }
 
     	// Stock Alert and Price are required
     	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
     	double price = Double.parseDouble(request.getParameter("price"));
 
-        int productId = productService.addProduct(name, unitId, categoryId, status,
+    	int productId = productService.addProduct(name, unitId, categoryId, status,
                 warehouseId, note, stockAlert, supplierId, price);
 
         response.setContentType("application/json");
@@ -344,6 +370,22 @@ public class AdminServlet extends HttpServlet {
     	if (note == null) {
     	    note = "";
     	}
+    	
+    	// Handle image upload
+//        String imagePath = null;
+//        Part filePart = request.getPart("productImage");
+//
+//        if (filePart != null && filePart.getSize() > 0 && filePart.getSubmittedFileName() != null) {
+//            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+////            String uploadPath = getServletContext().getRealPath("/product-images");
+//            String uploadPath = System.getProperty("user.dir") + "/src/main/webapp/product-images";
+//
+//            File uploadDir = new File(uploadPath);
+//            if (!uploadDir.exists()) uploadDir.mkdirs();
+//
+//            filePart.write(uploadPath + File.separator + fileName);
+//            imagePath = "product-images/" + fileName;
+//        }
 
     	// Stock Alert and Price are required
     	int stockAlert = Integer.parseInt(request.getParameter("stockAlert"));
