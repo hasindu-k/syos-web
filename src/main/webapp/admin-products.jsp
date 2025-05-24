@@ -33,7 +33,7 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Category</th>
-                        <th>Price</th>
+                        <th>Price (LKR)</th>
                         <th>Stock</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -45,7 +45,7 @@
                             <td class="text-muted">${vm.product.id}</td>
                             <td class="fw-semibold">${vm.product.name}</td>
                             <td>${vm.categoryName}</td>
-                            <td>$${vm.product.price}</td>
+                            <td>${vm.product.price}</td>
                             <td>${vm.stockQuantity}</td>
                             <td>
                                 <c:choose>

@@ -21,11 +21,31 @@
 
 <!-- Custom Hover Styles -->
 <style>
+ .btn-outline-secondary {
+            min-width: 180px;
+            padding: 8x 0;
+            font-size: 16px;
+            color: #1976d2;
+            background: #fff;
+            border: 1px solid #1976d2;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
     .btn-outline-secondary:hover,
     .btn-outline-light:hover {
         background-color: #0d6efd !important;
         color: white !important;
         border-color: #0d6efd !important;
+    }
+     @media (max-width: 768px) {
+        .input-group,
+        .dropdown,
+        .btn-outline-secondary {
+            width: 100% !important;
+        }
     }
 </style>
 
@@ -42,12 +62,36 @@
     </c:if>
 </div>
 
-<!-- Search + Back Button Row -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="w-50">
-        <input type="text" id="searchBox" class="form-control form-control-sm" placeholder="Search products...">
+<!-- Search + Category Dropdown + Back Button Row -->
+<div class="d-flex justify-content-between align-items-center mb-4 gap-2 flex-wrap">
+    <!-- Search Bar with Icon -->
+    <div class="input-group w-100 w-md-50">
+        <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="text" id="searchBox" class="form-control form-control-sm border-start-0" placeholder="Search products...">
     </div>
-    <a href="menu" class="btn btn-outline-secondary btn-sm ms-2">
+
+    <!-- Category Dropdown -->
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+        type="button"
+        id="categoryDropdown"
+        data-bs-toggle="dropdown"
+        data-selected="All"
+        aria-expanded="false">
+    Filter by Category
+</button>
+        <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+            <li><a class="dropdown-item category-option" href="#" data-category="All">All Categories</a></li>
+            <c:forEach var="cat" items="${categories}">
+                <li><a class="dropdown-item category-option" href="#" data-category="${cat.name}">${cat.name}</a></li>
+            </c:forEach>
+        </ul>
+    </div>
+
+    <!-- Back Button -->
+    <a href="menu" class="btn btn-outline-secondary btn-sm">
         Back to Menu
     </a>
 </div>
@@ -66,6 +110,7 @@
                             <th>#</th>
                             <th>Product Name</th>
                             <th>Category</th>
+                            <th>Price (LKR)</th>
                             <th>Stock</th>
                             <th>Status</th>
                             <c:if test="${userRole == 'Customer'}">
@@ -79,6 +124,7 @@
                                 <td>${status.index + 1}</td>
                                 <td class="product-name">${p.product.name}</td>
                                 <td class="product-category">${p.categoryName}</td>
+                                <td class="product-price">${p.product.price}</td>
                                 <td>
                                     <span class="badge bg-${p.stockQuantity > 0 ? 'success' : 'danger'}">
                                         ${p.stockQuantity}
@@ -130,6 +176,41 @@
             row.style.display = name.includes(filter) || category.includes(filter) ? '' : 'none';
         });
     });
+</script><script>
+    document.getElementById('searchBox').addEventListener('keyup', filterTable);
+
+    document.querySelectorAll('.category-option').forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            const selected = this.getAttribute('data-category');
+            const dropdownButton = document.getElementById('categoryDropdown');
+
+            // Update visible text
+            dropdownButton.innerText = selected === 'All' ? 'Filter by Category' : selected;
+
+            // Set selected category for filtering logic
+            dropdownButton.setAttribute('data-selected', selected.toLowerCase());
+
+            filterTable();
+        });
+    });
+
+    function filterTable() {
+        const filter = document.getElementById('searchBox').value.toLowerCase();
+        const selectedCategory = document.getElementById('categoryDropdown').getAttribute('data-selected');
+
+        document.querySelectorAll('#productTable tbody tr').forEach(row => {
+            const name = row.querySelector('.product-name').textContent.toLowerCase();
+            const category = row.querySelector('.product-category').textContent.toLowerCase();
+
+            const matchesText = name.includes(filter) || category.includes(filter);
+            const matchesCategory = selectedCategory === 'all' || selectedCategory === category;
+
+            row.style.display = matchesText && matchesCategory ? '' : 'none';
+        });
+    }
 </script>
+
+
 
 <jsp:include page="/footer.jsp"/>
