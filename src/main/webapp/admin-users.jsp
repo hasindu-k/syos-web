@@ -8,7 +8,7 @@
 <div class="container py-4">
     <!-- Top Bar -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">User Management</h2>
+         <h2 class="fw-bold text-primary">👥 Manage Users</h2>
         <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-primary">
             <i class="bi bi-arrow-left"></i> Back to Admin Menu
         </a>

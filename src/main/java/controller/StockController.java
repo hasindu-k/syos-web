@@ -87,13 +87,7 @@ public class StockController extends BaseController {
             expiryDate = new Date();
         }
 
-        int stockId = stockService.addStock(productId, quantity, costPrice,
-                sellingPrice, tax, warehouseId, expiryDate);
-        if (stockId > 0) {
-            System.out.println("Stock added successfully with ID: " + stockId);
-        } else {
-            System.out.println("Failed to add stock.");
-        }
+      
     }
 
     private void viewAllStocks() {

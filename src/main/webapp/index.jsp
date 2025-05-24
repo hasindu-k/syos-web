@@ -69,7 +69,7 @@
             background: rgba(255,255,255,0.07);
         }
         .logo-img {
-            width: 80px;
+            width: 250px;
             height: auto;
             display: block;
             margin: 0 auto;

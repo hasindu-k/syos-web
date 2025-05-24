@@ -6,9 +6,9 @@
 
 <style>
     .login-container {
-        max-width: 400px;
-        margin: 50px auto;
-        padding: 30px;
+        max-width: 500px;
+        margin: 70px auto;
+        padding: 80px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         border-radius: 10px;
         background-color: #ffffff;
@@ -17,8 +17,19 @@
     .login-logo {
         display: block;
         margin: 0 auto 20px;
-        width: 100px;
+        width: 200px;
     }
+     p a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
 </style>
 
 <div class="login-container">
@@ -44,6 +55,7 @@
 
         <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
+    <p><a href="register">Don't Have an Account, Register now.</a></p>
 </div>
 
 <jsp:include page="/footer.jsp"></jsp:include>

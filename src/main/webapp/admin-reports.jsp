@@ -12,7 +12,7 @@
 <div class="container py-4">
     <!-- Top Bar -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary mb-0">Admin Reports</h2>
+        <h2 class="text-primary mb-0"><i class="bi bi-file-earmark-bar-graph"></i>  Admin Reports</h2>
         <c:if test="${role == 'Admin'}">
             <a href="${pageContext.request.contextPath}/admin" class="btn btn-outline-primary">
                 <i class="bi bi-arrow-left"></i> Back to Admin Menu
