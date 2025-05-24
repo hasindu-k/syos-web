@@ -7,9 +7,11 @@ import jakarta.servlet.http.*;
 import model.Bill;
 import model.BillItem;
 import model.Product;
+import model.Stock;
 import service.BillService;
+import service.CustomerService;
 import service.ProductService;
-import service.shelvesService;
+import service.StockService;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,11 +21,13 @@ public class CheckoutServlet extends HttpServlet {
 
     private ProductService productService;
     private BillService billService;
+    private CustomerService customerService;
 
     @Override
     public void init() {
         productService = new ProductService();
         billService = new BillService();
+        customerService = new CustomerService();
     }
 
     @Override
@@ -34,6 +38,30 @@ public class CheckoutServlet extends HttpServlet {
         if (session == null || session.getAttribute("role") == null) {
             response.sendRedirect("login");
             return;
+        }
+
+        String address = request.getParameter("address");
+        String paymentType = request.getParameter("paymentType");
+
+        if (address == null || address.isBlank() || paymentType == null || paymentType.isBlank()) {
+            request.setAttribute("error", "Please provide address and select a payment method.");
+            request.getRequestDispatcher("/checkout.jsp").forward(request, response);
+            return;
+        }
+
+        if (paymentType.equals("CardPayment")) {
+            String cardNumber = request.getParameter("cardNumber");
+            String cardExpiry = request.getParameter("cardExpiry");
+            String cardCVV = request.getParameter("cardCVV");
+
+            if (cardNumber == null || cardNumber.isBlank() ||
+                    cardExpiry == null || cardExpiry.isBlank() ||
+                    cardCVV == null || cardCVV.isBlank()) {
+
+                request.setAttribute("error", "Card details are required for Online Payment.");
+                request.getRequestDispatcher("/checkout.jsp").forward(request, response);
+                return;
+            }
         }
 
         @SuppressWarnings("unchecked")
@@ -61,36 +89,56 @@ public class CheckoutServlet extends HttpServlet {
             subTotal += lineTotal;
         }
 
-        // Basic discount and payment settings (can be extended)
-        String discountType = ""; // e.g., "FIXED", "PERCENTAGE"
+        String discountType = "";
         double discountValue = 0;
         double discount = 0;
         double total = subTotal - discount;
         double receivedAmount = total;
         double changeReturn = 0;
 
-        // Retrieve customer info from session (optional)
         Integer customerId = null;
         String username = (String) session.getAttribute("username");
         if ("customer".equalsIgnoreCase((String) session.getAttribute("role"))) {
-            // Map username to customerId if needed
-            // You may enhance this with real customer lookup
-            customerId = 1; // temporary placeholder (e.g., fetch by username)
+            customerId = customerService.getCustomerIdByUsername(username);
         }
 
         Bill bill = new Bill(customerId, totalQty, subTotal, discountType, discountValue,
-                total, receivedAmount, changeReturn, "Cash", "Paid", items);
+                total, receivedAmount, changeReturn, paymentType, "Paid", items);
 
         int billId = billService.generateBill(bill, true);
 
         if (billId > 0) {
-            // Clear cart
             session.removeAttribute("cart");
 
-            // Optional: update shelves/sales
-            shelvesService shelfService = new shelvesService();
-            shelfService.updateShelves(billId);
-            shelfService.updateSales(billId);
+            // Update stock quantities
+            StockService stockService = new StockService();
+            for (BillItem item : items) {
+                int remainingQty = item.getQuantity();
+                List<Stock> stocks = stockService.getStocksByProductId(item.getProductId());
+
+                // Sort by expiry date ascending (FIFO)
+                stocks.sort(Comparator.comparing(Stock::getExpiryDate));
+
+                for (Stock stock : stocks) {
+                    if (remainingQty <= 0)
+                        break;
+
+                    int available = stock.getQuantity();
+                    int toDeduct = Math.min(available, remainingQty);
+
+                    if (toDeduct > 0) {
+                        boolean success = stockService.reduceStockQuantity(stock.getId(), toDeduct);
+                        if (!success) {
+                            System.err.println("Failed to reduce stock ID: " + stock.getId());
+                        }
+                        remainingQty -= toDeduct;
+                    }
+                }
+
+                if (remainingQty > 0) {
+                    System.err.println("Warning: Not enough stock to fulfill item: " + item.getProductName());
+                }
+            }
 
             request.setAttribute("success", "Order placed successfully! Bill ID: " + billId);
         } else {

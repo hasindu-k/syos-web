@@ -26,13 +26,14 @@ public class StockService implements Subject {
 
     /**
      * Adds a new stock entry and notifies observers.
-     * @param productId Product ID.
-     * @param quantity Quantity.
-     * @param costPrice Cost price.
+     * 
+     * @param productId    Product ID.
+     * @param quantity     Quantity.
+     * @param costPrice    Cost price.
      * @param sellingPrice Selling price.
-     * @param tax Tax percentage.
-     * @param warehouseId Warehouse ID.
-     * @param expiryDate Expiry date.
+     * @param tax          Tax percentage.
+     * @param warehouseId  Warehouse ID.
+     * @param expiryDate   Expiry date.
      * @return Stock ID if successful, else -1.
      */
     public int addStock(int productId, int quantity, int warehouseId, Date expiryDate) {
@@ -46,6 +47,7 @@ public class StockService implements Subject {
 
     /**
      * Retrieves all stocks with product details.
+     * 
      * @return List of Stock objects.
      */
     public List<Stock> getAllStocks() {
@@ -54,6 +56,7 @@ public class StockService implements Subject {
 
     /**
      * Registers an observer.
+     * 
      * @param o Observer to register.
      */
     @Override
@@ -63,6 +66,7 @@ public class StockService implements Subject {
 
     /**
      * Removes an observer.
+     * 
      * @param o Observer to remove.
      */
     @Override
@@ -72,6 +76,7 @@ public class StockService implements Subject {
 
     /**
      * Notifies all observers with a message.
+     * 
      * @param message Message to send.
      */
     @Override
@@ -89,6 +94,7 @@ public class StockService implements Subject {
 
     /**
      * Retrieves stocks for a specific product ID.
+     * 
      * @param productId The ID of the product to get stocks for
      * @return List of Stock objects for the given product ID
      */
@@ -98,12 +104,13 @@ public class StockService implements Subject {
 
     /**
      * Retrieves all stocks that are running low (quantity below threshold).
+     * 
      * @return List of Stock objects with low quantity
      */
     public List<Stock> getLowStockItems() {
         List<Stock> allStocks = getAllStocks();
         List<Stock> lowStocks = new java.util.ArrayList<>();
-        
+
         for (Stock stock : allStocks) {
             // Consider stock as low if quantity is less than or equal to 10
             if (stock.getQuantity() < 50) {
@@ -114,8 +121,13 @@ public class StockService implements Subject {
     }
     // Additional stock operations can be added here
 
-	public int getStockQuantityByProductId(int id) {
-		List<Stock> stocks = stockDao.getStocksByProductId(id);
-	    return stocks.stream().mapToInt(Stock::getQuantity).sum();
-	}
+    public int getStockQuantityByProductId(int id) {
+        List<Stock> stocks = stockDao.getStocksByProductId(id);
+        return stocks.stream().mapToInt(Stock::getQuantity).sum();
+    }
+
+    public boolean reduceStockQuantity(int stockId, int quantity) {
+        return stockDao.reduceStockQuantity(stockId, quantity);
+    }
+
 }

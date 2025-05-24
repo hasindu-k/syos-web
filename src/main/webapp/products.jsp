@@ -90,12 +90,19 @@
                                     </span>
                                 </td>
                                 <c:if test="${userRole == 'Customer'}">
-                                    <td>
-                                        <form action="add-to-cart" method="post" class="d-flex">
+                                    <td class="d-flex gap-1">
+                                        <!-- Add Button -->
+                                        <form action="cart" method="post" class="d-flex">
+                                            <input type="hidden" name="action" value="add" />
                                             <input type="hidden" name="productId" value="${p.product.id}" />
-                                            <input type="number" name="quantity" value="1" min="1" max="10"
-                                                   class="form-control form-control-sm me-2" style="width: 70px;" />
-                                            <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">+</button>
+                                        </form>
+                                    
+                                        <!-- Remove Button -->
+                                        <form action="cart" method="post">
+                                            <input type="hidden" name="action" value="remove" />
+                                            <input type="hidden" name="productId" value="${p.product.id}" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">−</button>
                                         </form>
                                     </td>
                                 </c:if>

@@ -42,7 +42,7 @@ public class ProductServlet extends HttpServlet {
         List<ProductView> viewModels = new ArrayList<>();
         for (Product product : products) {
             String categoryName = categoryMap.get(product.getCategoryId());
-            int stockQuantity = stockService.getStockQuantityByProductId(product.getId()); // You need to implement this
+            int stockQuantity = stockService.getStockQuantityByProductId(product.getId());
             viewModels.add(new ProductView(product, categoryName, stockQuantity));
         }
 

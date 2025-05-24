@@ -14,13 +14,14 @@ import java.util.List;
 public class CustomerDao {
     /**
      * Adds a new customer.
+     * 
      * @param customer Customer object.
      * @return Generated Customer ID or -1 if failed.
      */
     public int addCustomer(Customer customer) {
         String query = "INSERT INTO customers (name, email, phone) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, customer.getName());
             stmt.setString(2, customer.getEmail());
@@ -34,8 +35,7 @@ public class CustomerDao {
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     return generatedKeys.getInt(1);
-                }
-                else {
+                } else {
                     System.out.println("Creating customer failed, no ID obtained.");
                     return -1;
                 }
@@ -48,21 +48,21 @@ public class CustomerDao {
 
     /**
      * Retrieves all customers.
+     * 
      * @return List of Customer objects.
      */
     public List<Customer> getAllCustomers() {
         String query = "SELECT * FROM customers";
         List<Customer> customers = new ArrayList<>();
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Customer customer = new Customer(
                         rs.getString("name"),
                         rs.getString("email"),
-                        rs.getString("phone")
-                );
+                        rs.getString("phone"));
                 customer.setId(rs.getInt("id"));
                 customers.add(customer);
             }
@@ -74,13 +74,14 @@ public class CustomerDao {
 
     /**
      * Retrieves a customer by ID.
+     * 
      * @param customerId ID of the customer.
      * @return Customer object if found, else null.
      */
     public Customer getCustomerById(int customerId) {
         String query = "SELECT * FROM customers WHERE id = ?";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, customerId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -88,8 +89,7 @@ public class CustomerDao {
                     Customer customer = new Customer(
                             rs.getString("name"),
                             rs.getString("email"),
-                            rs.getString("phone")
-                    );
+                            rs.getString("phone"));
                     customer.setId(rs.getInt("id"));
                     return customer;
                 }
@@ -99,11 +99,11 @@ public class CustomerDao {
         }
         return null;
     }
-    
+
     public boolean emailExists(String email) {
         String query = "SELECT 1 FROM customers WHERE email = ?";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -113,5 +113,22 @@ public class CustomerDao {
             System.out.println("Check Email Error: " + e.getMessage());
             return false;
         }
+    }
+
+    public Integer getCustomerIdByUsername(String username) {
+        String query = "SELECT id FROM customers WHERE name = ?";
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Get Customer ID By Username Error: " + e.getMessage());
+        }
+        return null;
     }
 }
