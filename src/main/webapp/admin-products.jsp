@@ -5,7 +5,7 @@
 %>
 <jsp:include page="/header.jsp"/>
 
-<div class="container my-5">
+<div class="container my-5 product-container" data-context="${pageContext.request.contextPath}">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-primary">🛍️ Manage Products</h2>
         <div>
