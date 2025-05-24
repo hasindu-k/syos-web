@@ -122,7 +122,9 @@ public class ShelfDao {
 
                 if (totalAdded > 0 && lastUsedStockId != null) {
                     connection.createStatement().executeUpdate(
-                        "UPDATE shelves SET quantity = quantity + " + totalAdded + ", stocks_id = '" + lastUsedStockId + "' WHERE id = " + shelfId);
+                        "UPDATE shelves SET quantity = quantity + " + totalAdded +
+                        ", stocks_id = '" + lastUsedStockId + "'" +
+                        ", added_at = CURRENT_TIMESTAMP WHERE id = " + shelfId);
                     System.out.println("Shelf " + shelfId + " refilled to 50 using stocks up to ID: " + lastUsedStockId);
                 }
             }

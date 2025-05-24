@@ -20,9 +20,10 @@ public class ProductDao {
      * @return Generated Product ID or -1 if failed.
      */
     public int addProduct(Product product) {
-    	String query = "INSERT INTO products (name, unit_id, category_id, supplier_id, status, warehouse_id, note, stock_alert, price) "
+        String query = "INSERT INTO products (name, unit_id, category_id, supplier_id, status, warehouse_id, note, stock_alert, price) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, product.getName());
             stmt.setInt(2, product.getUnitId());
@@ -61,7 +62,9 @@ public class ProductDao {
     public List<Product> getAllProducts() {
         String query = "SELECT * FROM products";
         List<Product> products = new ArrayList<>();
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query);
+                ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
                 Product product = new Product(
@@ -73,8 +76,7 @@ public class ProductDao {
                         rs.getString("note"),
                         rs.getInt("stock_alert"),
                         rs.getInt("supplier_id"),
-                        rs.getDouble("price")
-                );
+                        rs.getDouble("price"));
                 product.setId(rs.getInt("id"));
                 products.add(product);
             }
@@ -92,7 +94,8 @@ public class ProductDao {
      */
     public Product getProductById(int productId) {
         String query = "SELECT * FROM products WHERE id = ?";
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -106,8 +109,7 @@ public class ProductDao {
                             rs.getString("note"),
                             rs.getInt("stock_alert"),
                             rs.getInt("supplier_id"),
-                            rs.getDouble("price")
-                    );
+                            rs.getDouble("price"));
                     product.setId(rs.getInt("id"));
                     return product;
                 }
@@ -125,9 +127,10 @@ public class ProductDao {
      * @return True if successful, else False.
      */
     public boolean updateProduct(Product product) {
-    	String query = "UPDATE products SET name = ?, unit_id = ?, category_id = ?, supplier_id = ?, "
+        String query = "UPDATE products SET name = ?, unit_id = ?, category_id = ?, supplier_id = ?, "
                 + "status = ?, warehouse_id = ?, note = ?, stock_alert = ?, price = ? WHERE id = ?";
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, product.getName());
             stmt.setInt(2, product.getUnitId());
@@ -138,10 +141,9 @@ public class ProductDao {
             stmt.setString(7, product.getNote());
             stmt.setInt(8, product.getStockAlert());
             stmt.setDouble(9, product.getPrice());
-            stmt.setInt(10, product.getId());
+            stmt.setInt(10,product.getId());
 
-            int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Update Product Error: " + e.getMessage());
             return false;
@@ -156,11 +158,11 @@ public class ProductDao {
      */
     public boolean deleteProduct(int productId) {
         String query = "DELETE FROM products WHERE id = ?";
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, productId);
-            int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Delete Product Error: " + e.getMessage());
             return false;
@@ -168,20 +170,19 @@ public class ProductDao {
     }
 
     /**
-     * Searches for products by name or code.
+     * Searches for products by ID (exact match).
      *
-     * @param query The search query (product name or code)
+     * @param query The search query (product ID as string)
      * @return List of matching products
      */
     public List<Product> searchProducts(String query) {
         String sqlQuery = "SELECT * FROM products WHERE id = ?";
         List<Product> products = new ArrayList<>();
 
-        try (Connection conn = DBConnection.INSTANCE.getConnection(); PreparedStatement stmt = conn.prepareStatement(sqlQuery)) {
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sqlQuery)) {
 
-            String searchPattern = query.toLowerCase();
-            stmt.setString(1, searchPattern);
-//            stmt.setString(2, searchPattern);
+            stmt.setString(1, query);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -194,8 +195,7 @@ public class ProductDao {
                             rs.getString("note"),
                             rs.getInt("stock_alert"),
                             rs.getInt("supplier_id"),
-                            rs.getDouble("price")
-                    );
+                            rs.getDouble("price"));
                     product.setId(rs.getInt("id"));
                     products.add(product);
                 }
