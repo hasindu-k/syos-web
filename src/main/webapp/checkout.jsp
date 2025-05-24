@@ -15,6 +15,7 @@
     <div class="alert alert-success"><%= success %></div>
 <% } %>
 
+
 <form action="checkout" method="post" class="card p-4 shadow-sm">
     <!-- Address -->
     <div class="mb-3">
@@ -55,11 +56,11 @@
 function toggleCardFields() {
     const paymentType = document.getElementById("paymentType").value;
     const cardFields = document.getElementById("cardDetails");
-    cardFields.style.display = paymentType === "Card" ? "block" : "none";
+    cardFields.style.display = paymentType === "CardPayment" ? "block" : "none";
 
-    document.getElementById("cardNumber").required = paymentType === "Card";
-    document.getElementById("cardExpiry").required = paymentType === "Card";
-    document.getElementById("cardCVV").required = paymentType === "Card";
+    document.getElementById("cardNumber").required = paymentType === "CardPayment";
+    document.getElementById("cardExpiry").required = paymentType === "CardPayment";
+    document.getElementById("cardCVV").required = paymentType === "CardPayment";
 }
 </script>
 

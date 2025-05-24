@@ -42,6 +42,7 @@ public class CheckoutServlet extends HttpServlet {
 
         String address = request.getParameter("address");
         String paymentType = request.getParameter("paymentType");
+        
 
         if (address == null || address.isBlank() || paymentType == null || paymentType.isBlank()) {
             request.setAttribute("error", "Please provide address and select a payment method.");
@@ -98,9 +99,15 @@ public class CheckoutServlet extends HttpServlet {
 
         Integer customerId = null;
         String username = (String) session.getAttribute("username");
+        System.out.println("username from session = " + username);
+
         if ("customer".equalsIgnoreCase((String) session.getAttribute("role"))) {
             customerId = customerService.getCustomerIdByUsername(username);
         }
+        
+        System.out.println("Customer ID = " + customerId);
+        System.out.println("Is role 'customer'? " + "customer".equalsIgnoreCase((String) session.getAttribute("role")));
+
 
         Bill bill = new Bill(customerId, totalQty, subTotal, discountType, discountValue,
                 total, receivedAmount, changeReturn, paymentType, "Paid", items);

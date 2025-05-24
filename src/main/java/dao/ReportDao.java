@@ -75,17 +75,43 @@ public class ReportDao {
      * Retrieves bill report.
      * @return List of maps containing report data.
      */
-    public List<Map<String, Object>> getBillReport() {
-        String query = "SELECT b.id AS bill_id, c.name AS customer_name, " +
-                "SUM(bi.quantity) AS total_items, " +
-                "SUM(bi.price * bi.quantity) AS total_amount, " +
-                "b.bill_date AS transaction_date " +
+    public List<Map<String, Object>> getBillReport(String date) {
+    	String query = "SELECT b.id AS 'Bill ID', " +
+                "COALESCE(c.name, 'Walk-in Customer') AS 'Customer Name', " +
+                "SUM(bi.quantity) AS 'Total Items', " +
+                "SUM(bi.price * bi.quantity) AS 'Total Amount', " +
+                "b.bill_date AS 'Transaction Date' " +
                 "FROM bills b " +
                 "LEFT JOIN customers c ON b.customer_id = c.id " +
                 "JOIN bill_items bi ON b.id = bi.bill_id " +
+                "WHERE b.bill_date = ? " +
                 "GROUP BY b.id, c.name, b.bill_date";
-        return executeQuery(query);
+
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        try (Connection conn = DBConnection.INSTANCE.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, date);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        row.put(metaData.getColumnLabel(i), rs.getObject(i));
+                    }
+                    resultList.add(row);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return resultList;
     }
+
 
     /**
      * Executes a query with a date parameter.

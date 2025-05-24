@@ -15,6 +15,7 @@ import java.util.List;
 public class BillDao {
     /**
      * Creates a new bill in the database.
+     * 
      * @param bill Bill object containing bill details.
      * @return Generated Bill ID or -1 if failed.
      */
@@ -23,7 +24,7 @@ public class BillDao {
                 "total, received_amount, change_return, payment_type, payment_status, bill_date) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             if (bill.getCustomerId() != null) {
                 stmt.setInt(1, bill.getCustomerId());
@@ -58,26 +59,27 @@ public class BillDao {
         } catch (SQLException e) {
             System.out.println("Bill Creation Error: " + e.getMessage());
             return -1;
-            
+
         }
     }
 
     /**
      * Adds items to a bill.
+     * 
      * @param billId ID of the bill.
-     * @param items List of BillItem objects.
+     * @param items  List of BillItem objects.
      * @return True if successful, else False.
      */
     public boolean addBillItems(int billId, List<BillItem> items) {
         String query = "INSERT INTO bill_items (bill_id, product_id, quantity, price, total) " +
                 "VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+                PreparedStatement stmt = conn.prepareStatement(query)) {
 
             for (BillItem item : items) {
                 stmt.setInt(1, billId);
                 stmt.setInt(2, item.getProductId());
-//                stmt.setString(3, item.getProductName());
+                // stmt.setString(3, item.getProductName());
                 stmt.setInt(3, item.getQuantity());
                 stmt.setDouble(4, item.getPrice());
                 stmt.setDouble(5, item.getTotalPrice());
@@ -87,13 +89,14 @@ public class BillDao {
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-//            System.out.println("Adding Bill Items Error: " + e.getMessage());
+            // System.out.println("Adding Bill Items Error: " + e.getMessage());
             return false;
         }
     }
 
     /**
      * Retrieves a bill by its ID.
+     * 
      * @param billId ID of the bill.
      * @return Bill object if found, else null.
      */
@@ -104,8 +107,8 @@ public class BillDao {
         Bill bill = null;
 
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billQuery);
-             PreparedStatement itemsStmt = conn.prepareStatement(itemsQuery)) {
+                PreparedStatement billStmt = conn.prepareStatement(billQuery);
+                PreparedStatement itemsStmt = conn.prepareStatement(itemsQuery)) {
 
             // Fetch bill details
             billStmt.setInt(1, billId);
@@ -117,15 +120,14 @@ public class BillDao {
                             billRs.getDouble("sub_total"),
                             billRs.getString("discount_type"),
                             billRs.getDouble("discount_value"),
-//                            billRs.getString("tax_type"),
-//                            billRs.getDouble("tax_value"),
+                            // billRs.getString("tax_type"),
+                            // billRs.getDouble("tax_value"),
                             billRs.getDouble("total"),
                             billRs.getDouble("received_amount"),
                             billRs.getDouble("change_return"),
                             billRs.getString("payment_type"),
                             billRs.getString("payment_status"),
-                            new ArrayList<>()
-                    );
+                            new ArrayList<>());
                 } else {
                     System.out.println("Bill not found with ID: " + billId);
                     return null;
@@ -140,8 +142,7 @@ public class BillDao {
                             itemsRs.getInt("product_id"),
                             itemsRs.getString("name"),
                             itemsRs.getInt("quantity"),
-                            itemsRs.getDouble("price")
-                    );
+                            itemsRs.getDouble("price"));
                     bill.getItems().add(item);
                 }
             }
@@ -155,6 +156,7 @@ public class BillDao {
 
     /**
      * Retrieves all bills from the database.
+     * 
      * @return List of all bills.
      */
     public List<Bill> getAllBills() {
@@ -163,7 +165,7 @@ public class BillDao {
         List<Bill> bills = new ArrayList<>();
 
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billQuery)) {
+                PreparedStatement billStmt = conn.prepareStatement(billQuery)) {
 
             // Fetch all bills
             try (ResultSet billRs = billStmt.executeQuery()) {
@@ -174,17 +176,16 @@ public class BillDao {
                             billRs.getDouble("sub_total"),
                             billRs.getString("discount_type"),
                             billRs.getDouble("discount_value"),
-//                            billRs.getString("tax_type"),
-//                            billRs.getDouble("tax_value"),
+                            // billRs.getString("tax_type"),
+                            // billRs.getDouble("tax_value"),
                             billRs.getDouble("total"),
                             billRs.getDouble("received_amount"),
                             billRs.getDouble("change_return"),
                             billRs.getString("payment_type"),
                             billRs.getString("payment_status"),
-                            new ArrayList<>()
-                    );
+                            new ArrayList<>());
                     bill.setBillDate(billRs.getTimestamp("bill_date"));
-                    
+
                     // Fetch items for each bill
                     try (PreparedStatement itemsStmt = conn.prepareStatement(itemsQuery)) {
                         itemsStmt.setInt(1, billRs.getInt("id"));
@@ -194,8 +195,7 @@ public class BillDao {
                                         itemsRs.getInt("products_id"),
                                         itemsRs.getString("product_name"),
                                         itemsRs.getInt("quantity"),
-                                        itemsRs.getDouble("price")
-                                );
+                                        itemsRs.getDouble("price"));
                                 bill.getItems().add(item);
                             }
                         }
@@ -212,6 +212,7 @@ public class BillDao {
 
     /**
      * Retrieves all bills from today.
+     * 
      * @return List of today's bills.
      */
     public List<Bill> getTodayBills() {
@@ -221,7 +222,7 @@ public class BillDao {
         List<Bill> bills = new ArrayList<>();
 
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-             PreparedStatement billStmt = conn.prepareStatement(billQuery)) {
+                PreparedStatement billStmt = conn.prepareStatement(billQuery)) {
 
             // Fetch today's bills
             try (ResultSet billRs = billStmt.executeQuery()) {
@@ -232,17 +233,16 @@ public class BillDao {
                             billRs.getDouble("sub_total"),
                             billRs.getString("discount_type"),
                             billRs.getDouble("discount_value"),
-//                            billRs.getString("tax_type"),
-//                            billRs.getDouble("tax_value"),
+                            // billRs.getString("tax_type"),
+                            // billRs.getDouble("tax_value"),
                             billRs.getDouble("total"),
                             billRs.getDouble("received_amount"),
                             billRs.getDouble("change_return"),
                             billRs.getString("payment_type"),
                             billRs.getString("payment_status"),
-                            new ArrayList<>()
-                    );
+                            new ArrayList<>());
                     bill.setBillDate(billRs.getTimestamp("bill_date"));
-                    
+
                     // Fetch items for each bill
                     try (PreparedStatement itemsStmt = conn.prepareStatement(itemsQuery)) {
                         itemsStmt.setInt(1, billRs.getInt("id"));
@@ -252,8 +252,7 @@ public class BillDao {
                                         itemsRs.getInt("product_id"),
                                         itemsRs.getString("products.name"),
                                         itemsRs.getInt("bill_items.quantity"),
-                                        itemsRs.getDouble("bill_items.price")
-                                );
+                                        itemsRs.getDouble("bill_items.price"));
                                 bill.getItems().add(item);
                             }
                         }

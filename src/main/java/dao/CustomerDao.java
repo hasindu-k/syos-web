@@ -116,21 +116,29 @@ public class CustomerDao {
     }
 
     public Integer getCustomerIdByUsername(String username) {
-        String query = "SELECT id FROM customers WHERE name = ?";
+        String query = """
+            SELECT c.id 
+            FROM customers c
+            JOIN users u ON c.user_id = u.id
+            WHERE u.username = ?
+            """;
+
         try (Connection conn = DBConnection.INSTANCE.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                }
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
             }
         } catch (SQLException e) {
-            System.out.println("Get Customer ID By Username Error: " + e.getMessage());
+            e.printStackTrace();
         }
+
         return null;
     }
+
 
     public List<Customer> searchByName(String namePart) {
         List<Customer> list = new ArrayList<>();

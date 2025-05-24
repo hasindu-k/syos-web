@@ -194,6 +194,28 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    window.handleTypeChange = () => {
+        const type = document.getElementById('type').value;
+        const dateInput = document.getElementById('date');
+        const today = new Date().toISOString().split('T')[0];
+
+        if (type === 'reshelved') {
+            dateInput.value = today;
+            dateInput.min = today;
+            dateInput.max = today;
+            dateInput.readOnly = true;
+            dateInput.disabled = false;
+        } else if (type) {
+            dateInput.value = '';
+            dateInput.min = '';
+            dateInput.max = '';
+            dateInput.readOnly = false;
+            dateInput.disabled = false;
+        } else {
+            dateInput.disabled = true;
+        }
+    }
+
     // ===== Optional: Auto-trigger a function if present =====
     if (typeof handleTypeChange === 'function') {
         handleTypeChange();

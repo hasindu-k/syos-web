@@ -44,4 +44,6 @@ public class AuthService {
     public boolean updateUserRole(int userId, String newRole) {
         return userDao.updateUserRole(userId, newRole);
     }
+    
+    
 }

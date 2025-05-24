@@ -32,12 +32,13 @@
                 <div class="col-md-4">
                     <label for="type" class="form-label">Report Type:</label>
                     <select name="type" id="type" class="form-select" required onchange="handleTypeChange()">
-                        <option value="">Select Report</option>
-                        <option value="totalSale" ${param.type == 'totalSale' ? 'selected' : ''}>Total Sales</option>
-                        <option value="reshelved" ${param.type == 'reshelved' ? 'selected' : ''}>Reshelved Items</option>
-                        <option value="reorderLevels" ${param.type == 'reorderLevels' ? 'selected' : ''}>Reorder Levels</option>
-                        <option value="stockBatch" ${param.type == 'stockBatch' ? 'selected' : ''}>Stock Batch-Wise</option>
-                    </select>
+					    <option value="">Select Report</option>
+					    <option value="totalSale" ${param.type == 'totalSale' ? 'selected' : ''}>Total Sales</option>
+					    <option value="reshelved" ${param.type == 'reshelved' ? 'selected' : ''}>Reshelved Items</option>
+					    <option value="reorderLevels" ${param.type == 'reorderLevels' ? 'selected' : ''}>Reorder Levels</option>
+					    <option value="stockBatch" ${param.type == 'stockBatch' ? 'selected' : ''}>Stock Batch-Wise</option>
+					    <option value="bill" ${param.type == 'bill' ? 'selected' : ''}>Bill Report</option> 
+					</select>
                 </div>
                 <div class="col-md-4">
                     <label for="date" class="form-label">Date:</label>
@@ -67,6 +68,9 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
+            <c:if test="${not empty reportData && fn:length(reportData) > 1}">
+		        <p class="text-muted">Total Records: ${fn:length(reportData) - 1}</p>
+		    </c:if>
                 <c:if test="${not empty reportData}">
                     <table class="table table-bordered table-hover mb-0">
                         <thead class="table-light text-center">

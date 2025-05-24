@@ -77,7 +77,13 @@ public class BillingServlet extends HttpServlet {
         int billId = billController.generateBillWeb(customerId, items, "", 0.0, subTotal);
 
         if (billId > 0) {
-            response.sendRedirect("billing-success.jsp?billId=" + billId);
+        	model.Bill bill = billController.getBillById(billId);
+        	request.setAttribute("billId", billId);
+        	request.setAttribute("bill", bill);
+        	request.setAttribute("customerName", (bill.getCustomerId() != null)
+        	        ? customerService.getCustomerById(bill.getCustomerId()).getName()
+        	        : "Walk-in Customer");
+        	request.getRequestDispatcher("/billing-success.jsp").forward(request, response);
         } else {
             request.setAttribute("error", "Failed to generate bill.");
             response.sendRedirect("billing-error.jsp");

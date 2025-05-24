@@ -10,18 +10,20 @@ import java.util.Map;
  */
 public class BillReportStrategy implements ReportStrategy {
     private ReportDao reportDao;
+    private String date;
 
-    public BillReportStrategy() {
+    public BillReportStrategy(String date) {
         this.reportDao = new ReportDao();
+        this.date = date;
     }
 
     @Override
     public List<Map<String, Object>> generateReport() {
-        return reportDao.getBillReport();
+        return reportDao.getBillReport(date);
     }
 
     @Override
     public String getReportName() {
-        return "Bill Report";
+        return "Bill Report for " + date;
     }
 }

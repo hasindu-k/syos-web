@@ -248,7 +248,7 @@ public class AdminServlet extends HttpServlet {
 
         strategy.ReportStrategy strategy = null;
 
-        switch (type != null ? type : "") {
+        switch (type) {
             case "totalSale":
                 if (date == null || date.isEmpty()) {
                     date = java.time.LocalDate.now().toString();
@@ -267,6 +267,12 @@ public class AdminServlet extends HttpServlet {
             case "stockBatch":
                 strategy = new strategy.StockBatchWiseReportStrategy();
                 break;
+            case "bill":
+            	if (date == null || date.isEmpty()) {
+                    date = java.time.LocalDate.now().toString();
+                }
+                strategy = new strategy.BillReportStrategy(date);
+                break;
             default:
                 request.setAttribute("error", "Invalid or missing report type");
                 request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
@@ -283,6 +289,7 @@ public class AdminServlet extends HttpServlet {
 
         request.getRequestDispatcher("/admin-reports.jsp").forward(request, response);
     }
+
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
