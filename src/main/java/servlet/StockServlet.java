@@ -22,9 +22,13 @@ public class StockServlet extends HttpServlet {
         stockService = new StockService();
     }
 
+    public void setStockService(StockService stockService) {
+        this.stockService = stockService;
+    }
+
     // Handles viewing logic
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String message = request.getParameter("message");
@@ -68,7 +72,7 @@ public class StockServlet extends HttpServlet {
 
     // Handles adding new stock
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             int productId = Integer.parseInt(request.getParameter("productId"));

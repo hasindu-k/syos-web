@@ -45,11 +45,11 @@ public class AdminServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-         if (session == null || session.getAttribute("role") == null ||
-         !session.getAttribute("role").equals("Admin")) {
-         response.sendRedirect(request.getContextPath() + "/login.jsp");
-         return;
-         }
+        if (session == null || session.getAttribute("role") == null ||
+        	    (!session.getAttribute("role").equals("Admin") && !session.getAttribute("role").equals("Manager"))) {
+        	    response.sendRedirect(request.getContextPath() + "/login.jsp");
+        	    return;
+        }
 
         String role = null;
         if (session != null) {

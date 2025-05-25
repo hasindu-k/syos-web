@@ -9,12 +9,26 @@ import java.io.IOException;
 
 @WebServlet("/reshelve")
 public class ReshelveServlet extends HttpServlet {
+    private shelvesService service;
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void init() {
+        service = new shelvesService();
+    }
+
+    public void setShelvesService(shelvesService service) {
+        this.service = service;
+    }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        shelvesService service = new shelvesService();
-        service.reshelf();
-        response.sendRedirect("menu");
+        try {
+        	service.reshelf(); // may throw
+        } catch (Exception e) {
+            e.printStackTrace(); // or log it
+            request.setAttribute("error", "Reshelving failed: " + e.getMessage());
+        }
+        response.sendRedirect("menu"); // always redirect
     }
 }
