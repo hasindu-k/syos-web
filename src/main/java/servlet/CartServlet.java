@@ -12,18 +12,30 @@ import java.util.Map;
 public class CartServlet extends HttpServlet {
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String action = request.getParameter("action");
-		int productId = Integer.parseInt(request.getParameter("productId"));
-		int quantity = 1; // default for remove action
-
 		HttpSession session = request.getSession();
-		@SuppressWarnings("unchecked")
-		Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
-		if (cart == null) {
-			cart = new HashMap<>();
-		}
+	    Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
+
+	    if (cart == null) {
+	        cart = new HashMap<>();
+	    }
+
+	    String action = request.getParameter("action");
+	    String productIdStr = request.getParameter("productId");
+	    Integer productId = null;
+
+	    // Only try to parse productId if it's needed
+	    if (action != null && !"clear".equalsIgnoreCase(action)) {
+	        try {
+	            productId = Integer.parseInt(productIdStr);
+	        } catch (NumberFormatException e) {
+	            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID.");
+	            return;
+	        }
+	    }
+		
+		int quantity = 1; // default for remove action
 
 		switch (action) {
 			case "add":

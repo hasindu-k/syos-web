@@ -22,13 +22,13 @@ public class RegisterServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("/register.jsp").forward(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Collect form data
         String username = request.getParameter("username");
@@ -58,5 +58,13 @@ public class RegisterServlet extends HttpServlet {
         }
 
         request.getRequestDispatcher("/register.jsp").forward(request, response);
+    }
+    
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
+    }
+
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
     }
 }
