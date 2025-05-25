@@ -36,7 +36,6 @@
 					    <option value="totalSale" ${param.type == 'totalSale' ? 'selected' : ''}>Total Sales</option>
 					    <option value="reshelved" ${param.type == 'reshelved' ? 'selected' : ''}>Reshelved Items</option>
 					    <option value="reorderLevels" ${param.type == 'reorderLevels' ? 'selected' : ''}>Reorder Levels</option>
-					    <option value="stockBatch" ${param.type == 'stockBatch' ? 'selected' : ''}>Stock Batch-Wise</option>
 					    <option value="bill" ${param.type == 'bill' ? 'selected' : ''}>Bill Report</option> 
 					</select>
                 </div>

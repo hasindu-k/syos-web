@@ -5,8 +5,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @WebServlet("/cart")
 public class CartServlet extends HttpServlet {
@@ -14,41 +15,49 @@ public class CartServlet extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		HttpSession session = request.getSession();
-	    Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
+		@SuppressWarnings("unchecked")
+		Map<Integer, AtomicInteger> cart = (Map<Integer, AtomicInteger>) session.getAttribute("cart");
 
-	    if (cart == null) {
-	        cart = new HashMap<>();
-	    }
+		if (cart == null) {
+			cart = new ConcurrentHashMap<>();
+			session.setAttribute("cart", cart);
+		}
 
-	    String action = request.getParameter("action");
-	    String productIdStr = request.getParameter("productId");
-	    Integer productId = null;
+		String action = request.getParameter("action");
+		String productIdStr = request.getParameter("productId");
+		Integer productId = null;
 
-	    // Only try to parse productId if it's needed
-	    if (action != null && !"clear".equalsIgnoreCase(action)) {
-	        try {
-	            productId = Integer.parseInt(productIdStr);
-	        } catch (NumberFormatException e) {
-	            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID.");
-	            return;
-	        }
-	    }
-		
-		int quantity = 1; // default for remove action
+		// Handle null action
+		if (action == null) {
+			session.setAttribute("cart", cart);
+			response.sendRedirect("products");
+			return;
+		}
+
+		if (!"clear".equalsIgnoreCase(action)) {
+			try {
+				productId = Integer.parseInt(productIdStr);
+			} catch (NumberFormatException e) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid product ID.");
+				return;
+			}
+		}
+
+		int quantity = 1;
 
 		switch (action) {
 			case "add":
-				cart.put(productId, cart.getOrDefault(productId, 0) + quantity);
+				cart.computeIfAbsent(productId, k -> new AtomicInteger(0)).addAndGet(quantity);
 				break;
-
 			case "remove":
-				if (cart.containsKey(productId)) {
-					int currentQty = cart.get(productId);
-					if (currentQty <= 1) {
+				AtomicInteger currentQty = cart.get(productId);
+				if (currentQty != null) {
+					if (currentQty.get() <= 1) {
 						cart.remove(productId);
 					} else {
-						cart.put(productId, currentQty - 1);
+						currentQty.decrementAndGet();
 					}
 				}
 				break;
@@ -58,9 +67,12 @@ public class CartServlet extends HttpServlet {
 			case "clear":
 				cart.clear();
 				break;
+			default:
+				// Unknown action, just redirect
+				break;
 		}
 
-		session.setAttribute("cart", cart);
+		session.setAttribute("cart", cart); // always write back
 		response.sendRedirect("products");
 	}
 }

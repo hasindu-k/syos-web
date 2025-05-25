@@ -1,7 +1,10 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.concurrent.atomic.AtomicInteger" %>
 <%@ page import="model.Product" %>
 <%@ page import="service.ProductService" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
+
 <%
     request.setAttribute("pageTitle", "Your Cart");
 %>
@@ -36,7 +39,7 @@
 
     <%-- ✅ Cart Display --%>
     <%
-        Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
+        Map<Integer, AtomicInteger> cart = (Map<Integer, AtomicInteger>) session.getAttribute("cart");
         ProductService productService = new ProductService();
         double total = 0;
 
@@ -71,10 +74,10 @@
                         <tbody>
                             <%
                                 int index = 1;
-                                for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
+                                for (Map.Entry<Integer, AtomicInteger> entry : cart.entrySet()) {
                                     int productId = entry.getKey();
-                                    int quantity = entry.getValue();
-                                    model.Product product = productService.getProductById(productId);
+                                    int quantity = entry.getValue().get();
+                                    Product product = productService.getProductById(productId);
                                     if (product == null) continue;
                                     double price = product.getPrice();
                                     double lineTotal = price * quantity;
@@ -110,14 +113,13 @@
                 </div>
             </div>
         </div>
-    </div>
 
         <%-- ✅ Action Buttons --%>
         <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
             <a href="products" class="btn btn-outline-primary btn-lg">
                 <i class="bi bi-arrow-left-circle me-2"></i>Continue Shopping
             </a>
-           
+
             <a href="checkout.jsp" class="btn btn-success btn-lg">
                 Proceed to Checkout <i class="bi bi-arrow-right-circle ms-2"></i>
             </a>
@@ -126,4 +128,5 @@
         }
     %>
 </div>
+
 <jsp:include page="/footer.jsp" />

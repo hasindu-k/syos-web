@@ -107,4 +107,14 @@ public class BillService {
     public List<Bill> getTodayBills() {
         return billDao.getTodayBills();
     }
+	
+    public List<Bill> getBillsByCustomerId(int customerId) {
+        return billDao.getBillsByCustomerId(customerId);
+    }
+
+    public List<Bill> getFilteredBillsByCustomer(int customerId, String fromDate, String toDate, String paymentType, String paymentStatus) {
+        return billDao.getFilteredBillsByCustomer(customerId, fromDate, toDate, paymentType, paymentStatus);
+    }
+
+    
 }

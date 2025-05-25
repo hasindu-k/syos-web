@@ -76,5 +76,10 @@ public class CustomerService {
     public List<Customer> searchCustomersByName(String namePart) {
         return new CustomerDao().searchByName(namePart);
     }
+    
+    public Customer getCustomerByUsername(String username) {
+        return customerDao.getCustomerByUsername(username);
+    }
+
 
 }

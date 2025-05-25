@@ -160,4 +160,23 @@ public class CustomerDao {
         return list;
     }
 
+    public Customer getCustomerByUsername(String username) {
+        String sql = "SELECT * FROM customers WHERE email = (SELECT email FROM users WHERE username = ?)";
+        try (PreparedStatement stmt = DBConnection.INSTANCE.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Customer c = new Customer();
+                c.setId(rs.getInt("id"));
+                c.setName(rs.getString("name"));
+                c.setEmail(rs.getString("email"));
+                c.setPhone(rs.getString("phone"));
+                return c;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

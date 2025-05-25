@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.BillItem;
 import model.Customer;
+import service.BillService;
 import service.CustomerService;
 import service.ProductService;
 
@@ -17,27 +18,27 @@ import java.util.List;
 public class BillingServlet extends HttpServlet {
 
     private BillController billController;
+    private CustomerService customerService;
+    private ProductService productService;
 
     @Override
     public void init() {
-        billController = new BillController();
+    	billController = new BillController();
+        customerService = new CustomerService();
+        productService = new ProductService();
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         List<Customer> customers = new CustomerService().getAllCustomers();
         request.setAttribute("customers", customers);
         request.getRequestDispatcher("/billing.jsp").forward(request, response);
     }
 
-    
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        CustomerService customerService = new CustomerService();
-        ProductService productService = new ProductService();
 
         String customerIdParam = request.getParameter("customerId");
         int customerId = -1;
@@ -57,7 +58,8 @@ public class BillingServlet extends HttpServlet {
             int qty = Integer.parseInt(quantities[i]);
 
             model.Product product = productService.getProductById(pid);
-            if (product == null) continue;
+            if (product == null)
+                continue;
 
             double price = product.getPrice();
             String name = product.getName();
@@ -95,7 +97,8 @@ public class BillingServlet extends HttpServlet {
 
         double changeReturn = receivedAmount - total;
 
-        // Pass original % value to controller, since it stores discountType + discountValue
+        // Pass original % value to controller, since it stores discountType +
+        // discountValue
         int billId = billController.generateBillWeb(customerId, items, discountType, discountValue, receivedAmount);
 
         if (billId > 0) {
@@ -112,5 +115,18 @@ public class BillingServlet extends HttpServlet {
             doGet(request, response);
         }
     }
+    
+    public void setBillController(BillController billController) {
+        this.billController = billController;
+    }
+    
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
+
 
 }

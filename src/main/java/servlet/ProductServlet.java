@@ -49,6 +49,7 @@ public class ProductServlet extends HttpServlet {
         // Get product list from service
         List<Product> products = productService.getAllProducts();
         List<Category> categories = categoryService.getAllCategories();
+
         Map<Integer, String> categoryMap = categories.stream()
                 .collect(Collectors.toMap(Category::getId, Category::getName));
 
@@ -60,6 +61,7 @@ public class ProductServlet extends HttpServlet {
         }
 
         request.setAttribute("products", viewModels);
+        request.setAttribute("categories", categories);
 
         // Forward to JSP view
         request.getRequestDispatcher("/products.jsp").forward(request, response);

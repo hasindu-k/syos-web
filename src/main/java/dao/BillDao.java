@@ -266,4 +266,77 @@ public class BillDao {
 
         return bills;
     }
+    
+    public List<Bill> getBillsByCustomerId(int customerId) {
+        List<Bill> bills = new ArrayList<>();
+        String sql = "SELECT * FROM bills WHERE customer_id = ? ORDER BY bill_date DESC";
+
+        try (PreparedStatement stmt = DBConnection.INSTANCE.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Bill bill = new Bill();
+                bill.setId(rs.getInt("id"));
+                bill.setBillDate(rs.getDate("bill_date"));
+                bill.setTotalQty(rs.getInt("total_qty"));
+                bill.setTotal(rs.getDouble("total"));
+                bill.setPaymentType(rs.getString("payment_type"));
+                bill.setPaymentStatus(rs.getString("payment_status"));
+                bills.add(bill);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bills;
+    }
+
+    public List<Bill> getFilteredBillsByCustomer(int customerId, String fromDate, String toDate, String paymentType, String paymentStatus) {
+        List<Bill> bills = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM bills WHERE customer_id = ?");
+        List<Object> params = new ArrayList<>();
+        params.add(customerId);
+
+        if (fromDate != null && !fromDate.isBlank()) {
+            query.append(" AND bill_date >= ?");
+            params.add(fromDate);
+        }
+        if (toDate != null && !toDate.isBlank()) {
+            query.append(" AND bill_date <= ?");
+            params.add(toDate);
+        }
+        if (paymentType != null && !paymentType.isBlank()) {
+            query.append(" AND payment_type = ?");
+            params.add(paymentType);
+        }
+        if (paymentStatus != null && !paymentStatus.isBlank()) {
+            query.append(" AND payment_status = ?");
+            params.add(paymentStatus);
+        }
+
+        query.append(" ORDER BY bill_date DESC");
+
+        try (PreparedStatement stmt = DBConnection.INSTANCE.getConnection().prepareStatement(query.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Bill bill = new Bill();
+                bill.setId(rs.getInt("id"));
+                bill.setBillDate(rs.getDate("bill_date"));
+                bill.setTotalQty(rs.getInt("total_qty"));
+                bill.setTotal(rs.getDouble("total"));
+                bill.setPaymentType(rs.getString("payment_type"));
+                bill.setPaymentStatus(rs.getString("payment_status"));
+                bills.add(bill);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return bills;
+    }
+
 }

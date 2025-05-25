@@ -21,6 +21,10 @@ public class Bill {
     private String paymentStatus; // "Paid" or "Pending"
     private Date billDate;
     private List<BillItem> items;
+    
+    public Bill() {
+        // Default constructor for DAO hydration
+    }
 
     public Bill(Integer customerId, int totalQty, double subTotal, String discountType,
                 double discountValue, double total,

@@ -15,6 +15,7 @@ import service.StockService;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @WebServlet("/checkout")
 public class CheckoutServlet extends HttpServlet {
@@ -31,7 +32,7 @@ public class CheckoutServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
@@ -42,7 +43,6 @@ public class CheckoutServlet extends HttpServlet {
 
         String address = request.getParameter("address");
         String paymentType = request.getParameter("paymentType");
-        
 
         if (address == null || address.isBlank() || paymentType == null || paymentType.isBlank()) {
             request.setAttribute("error", "Please provide address and select a payment method.");
@@ -66,7 +66,8 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         @SuppressWarnings("unchecked")
-        Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
+//        Map<Integer, Integer> cart = (Map<Integer, Integer>) session.getAttribute("cart");
+        Map<Integer, AtomicInteger> cart = (Map<Integer, AtomicInteger>) session.getAttribute("cart");
 
         if (cart == null || cart.isEmpty()) {
             request.setAttribute("error", "Your cart is empty.");
@@ -78,9 +79,10 @@ public class CheckoutServlet extends HttpServlet {
         int totalQty = 0;
         double subTotal = 0.0;
 
-        for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
+        for (Map.Entry<Integer, AtomicInteger> entry : cart.entrySet()) {
             int productId = entry.getKey();
-            int quantity = entry.getValue();
+            int quantity = entry.getValue().get();
+
             Product product = productService.getProductById(productId);
             double price = product.getPrice();
             double lineTotal = price * quantity;
@@ -104,10 +106,9 @@ public class CheckoutServlet extends HttpServlet {
         if ("customer".equalsIgnoreCase((String) session.getAttribute("role"))) {
             customerId = customerService.getCustomerIdByUsername(username);
         }
-        
+
         System.out.println("Customer ID = " + customerId);
         System.out.println("Is role 'customer'? " + "customer".equalsIgnoreCase((String) session.getAttribute("role")));
-
 
         Bill bill = new Bill(customerId, totalQty, subTotal, discountType, discountValue,
                 total, receivedAmount, changeReturn, paymentType, "Paid", items);
@@ -154,4 +155,17 @@ public class CheckoutServlet extends HttpServlet {
 
         request.getRequestDispatcher("/cart.jsp").forward(request, response);
     }
+    
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
+    
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+    
+    public void setBillService(BillService billService) {
+        this.billService = billService;
+    }
+
 }

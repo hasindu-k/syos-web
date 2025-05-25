@@ -76,16 +76,17 @@ public class ReportDao {
      * @return List of maps containing report data.
      */
     public List<Map<String, Object>> getBillReport(String date) {
-    	String query = "SELECT b.id AS 'Bill ID', " +
+        String query = "SELECT b.id AS 'Bill ID', " +
                 "COALESCE(c.name, 'Walk-in Customer') AS 'Customer Name', " +
                 "SUM(bi.quantity) AS 'Total Items', " +
                 "SUM(bi.price * bi.quantity) AS 'Total Amount', " +
+                "b.payment_type AS 'Payment Type', " +
                 "b.bill_date AS 'Transaction Date' " +
                 "FROM bills b " +
                 "LEFT JOIN customers c ON b.customer_id = c.id " +
                 "JOIN bill_items bi ON b.id = bi.bill_id " +
                 "WHERE b.bill_date = ? " +
-                "GROUP BY b.id, c.name, b.bill_date";
+                "GROUP BY b.id, c.name, b.payment_type, b.bill_date";
 
         List<Map<String, Object>> resultList = new ArrayList<>();
         try (Connection conn = DBConnection.INSTANCE.getConnection();
