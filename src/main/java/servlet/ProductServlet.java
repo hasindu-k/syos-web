@@ -29,8 +29,21 @@ public class ProductServlet extends HttpServlet {
         stockService = new StockService();
     }
 
+    // Methods for testing purposes
+    public void setProductService(ProductService productService) {
+        this.productService = productService;
+    }
+
+    public void setCategoryService(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
+    public void setStockService(StockService stockService) {
+        this.stockService = stockService;
+    }
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         // Get product list from service

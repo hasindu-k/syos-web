@@ -10,7 +10,7 @@ import java.io.IOException;
 public class MenuServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Get session and check authentication
         HttpSession session = request.getSession(false);
@@ -39,6 +39,5 @@ public class MenuServlet extends HttpServlet {
                 request.setAttribute("error", "Unknown user role: " + role);
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
-
     }
 }
